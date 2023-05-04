@@ -1,0 +1,54 @@
+ 
+  <div class="accordion-item">
+    <h5 class="accordion-header " id="dept_<%= deptlist.dept.id %>">
+
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo_<%= deptlist.dept.id %>" aria-expanded="true" aria-controls="collapseTwo_<%= deptlist.dept.id %>">
+        
+
+
+        
+ 
+            <span>
+
+              
+                <b id="groupOptions<%= deptlist.dept.id %>"   style="background-color:<%= deptlist.dept.deptcolor %> ;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>
+                <b class="ucwords"><%= deptlist.dept.deptname %></b>
+                <br> 
+                <small class="text-muted">Dept: </small><b class="text-info top_mydeptTotal_<%= deptlist.dept.subcategoryid %>">0</b>
+
+                <small class="text-muted">Group: </small><b class="text-success top_mygroupTotal_<%= deptlist.dept.id %>">0</b>
+
+               <small class="text-muted">Active: </small><b class="text-danger myactiveCnt_<%= deptlist.dept.id %>"><%= deptlist.dept.activeTotal.length %></b>
+      
+               <small class="text-muted">View: </small><b class="text-warning inMapViewCnt inMapViewCnt_<%= deptlist.dept.id %>">0</b>
+              </span>
+       
+      </button>
+    
+    </h5>
+    <div id="collapseTwo_<%= deptlist.dept.id %>"  class=" accordion-collapse collapse " aria-labelledby="dept_<%= deptlist.dept.id %>" data-bs-parent="#myaccordionDepartments">
+      <div class="my-0 p-2 bg-body rounded shadow-sm allUnitsof_<%= deptlist.dept.id %>"  id="collapseTwoHtml_<%= deptlist.dept.id %>" >
+             
+
+          
+            <% for(var i=0; i<deptlist.units.length; i++) {%>
+              
+              <div class="d-flex text-muted pt-3 top_unit_<%= deptlist.units[i].unitno %> top_unit_<%= deptlist.units[i].deptid %>"   style="display:<%= deptlist.units[i].display %> !important;"  >
+                  <svg class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32"
+                      xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 32x32"
+                      preserveAspectRatio="xMidYMid slice" focusable="false">
+                      <title>Placeholder</title>
+                      <rect width="100%" height="100%" fill="#e83e8c"></rect><text x="50%" y="50%" fill="#e83e8c"
+                          dy=".3em">32x32</text>
+                  </svg>
+                  <div class="pb-mb-0 small lh-sm border-bottom ">
+                  <strong class="d-block text-gray-dark"><%= deptlist.units[i].unitno %></strong> 
+                    Visible: <%= deptlist.units[i].visible %>  <br> 
+                    Last Active On: <%= deptlist.units[i].time %>   
+               
+                  </div>
+              </div>
+          <% } %>
+      </div>
+    </div>
+  </div>

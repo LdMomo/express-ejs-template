@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <link media="screen" rel="stylesheet" href="assets/maptalks/maptalks.css" type="text/css">
+    <link href="assets/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+
+    <script type="text/javascript" src="https://unpkg.com/maptalks/dist/maptalks.min.js"></script>
+    <script type="text/javascript" src="assets/maptalks/maptalks.min.js"></script>
+    <script type="text/javascript" src="assets/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src='//top.police.gov.mv/feed1'></script>
+    <script type="text/javascript" src="assets/js/global.js"></script>
+    <script>
+        //Global Variables
+        var map;
+        var map1;
+        var subcatList = [];
+
+
+        var dark_all = new maptalks.TileLayer('base', {
+            urlTemplate: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+            subdomains: ["a", "b", "c", "d"],
+            attribution: '&copy; <a href="http://osm.org">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/">CARTO</a>'
+        })
+        var light_all = new maptalks.TileLayer('base', {
+            urlTemplate: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+            subdomains: ["a", "b", "c", "d"],
+            attribution: '&copy; <a href="http://osm.org">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/">CARTO</a>'
+        })
+
+        var current_base_layer = dark_all;
+    </script>
+    <title>xc</title>
+</head>
+
+
+
+<body data-bs-theme="dark" id="top-mc">
+
+
+
+
+
+    <div class="toast-container p-3 top-50 start-50 translate-middle">
+        <div id="myToas" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        </div>
+    </div>
+
+
+
+
+    <%- include("partials/map") -%>
+         <div class="row mb-4  ">
+
+
+
+            <div class="toolbar-horizontal col-md-3" >
+                
+              
+              
+                <div class="custom_card " style="padding-left: 2px !important;">
+                    <h3 class="card-header"  style="padding-left: 10px !important; background-image: linear-gradient(to bottom right, rgb(92, 152, 230), rgb(7, 2, 36))!important;">Tactical Operational Platform</h3>
+                    <h3 class="card-header" id="top-mc-card-headder">Dashboard</h3>
+
+                    <div class="card-body" id="top-mc-body"
+                        style="overflow: auto !important;max-height: 80vh !important;">
+
+
+                        <%- include("partials/dashboard") -%>
+                    </div>
+
+                    <div class="alert text-warning" role="alert"
+                    style="padding-left: 10px !important;padding: 2px;margin-bottom:2px;">
+                    <small>
+                        <b>Map Server Time</b>:
+                        <span class="mapServerTime">11:42:45 AM</span>
+                    </small>
+                </div>
+
+                </div>
+                <!--<%- include("partials/sidebar") -%>  -->
+
+            </div>
+
+     </div>
+    <%- include("partials/sidebar-h") -%>
+    <!-- Your code here -->
+
+    <script id="rendered-js">
+        $(function () {
+            // setContent example
+            $('[data-toggle="tooltip"]').tooltip();
+            $("button").click(function () {
+                // do something
+                t.route();
+            });
+            genDepartmentList();
+
+        });
+
+        function iniMapFunctions() {
+            template.groupTostOptions('top_depts')
+            template.mapTostOptions('mapActiveUnits')
+
+            template.mapLayerOptions('mapLayers')
+            renderLiveMotorola()
+
+
+            setInterval(() => {
+                $('.top_socketUpdate').html(0);
+            }, 5000)
+
+
+        }
+        //Template Functions
+        var t = {
+            getRoute: function (r) {
+                var p = new Promise(function (resolve, reject) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('GET', 'http://172.20.33.20:3001/' + r);
+                    xhr.onload = function () {
+                        if (xhr.status == 200) {
+                            resolve(xhr.response);
+                        } else {
+                            reject(Error(xhr.statusText));
+                        }
+                    };
+                    xhr.onerror = function () {
+                        reject(Error('error fetching JSON data'));
+                    };
+                    xhr.send();
+                });
+                return p;
+            },
+            route: function (n) {
+                if (typeof n !== "undefined") {
+
+                    var p = t.getRoute(n);
+                    p.then(function (data) {
+                        var headder = '';
+                        switch (n) {
+                            case 'unitListLayout':
+                                headder = 'Units List';
+                                renderUnits('#unitListHtml');
+                                break;
+                            case 'myListLayout':
+                                myList();
+                                headder = 'My List';
+
+                                break;
+                            case 'deptListLayout':
+                                headder = 'Departments List';
+                                genDepartmentList();
+                                break;
+                            case 'flyViews':
+                                headder = 'Fly To';
+                                break;
+                            case 'dashboard':
+                                headder = 'Dashboard';
+                                genDepartmentList();
+                                break;
+
+                        }
+                        $('#top-mc-card-headder').html(headder)
+
+
+                        console.log(data)
+                        $('#top-mc-body').html(data)
+
+                    }, function (error) {
+                        console.log(error);
+                    });
+                }
+            },
+            flyto: function (z, c, b, p) {
+                map1.flyTo({
+                    zoom: z,
+                    center: c,
+                    pitch: p,
+                    bearing: b
+                }, {
+                    duration: 6000,
+
+                }, function (frame) {
+                    if (frame.state.playState === 'finished') {
+                        console.log('animation finished');
+                    }
+                });
+            },
+            toggleFullScreen: function (e) {
+                var elem = document.getElementById(e);
+                if (document.fullscreenEnabled) {
+                    /* Show the element in fullscreen */
+                    elem.requestFullscreen();
+                }
+            },
+            switchDarkMode: function () {
+                console.log(document.getElementById('top-mc').dataset.bsTheme)
+                if (document.getElementById('top-mc').dataset.bsTheme == 'light') {
+                    //map1.removeBaseLayer();
+                    //map1.setBaseLayer(dark_all);
+                    document.getElementById('top-mc').dataset.bsTheme = 'dark';
+                    document.cookie = "toolbar_theam=dark";
+                } else {
+                    document.getElementById('top-mc').dataset.bsTheme = 'light';
+                    //map1.removeBaseLayer();
+                    //map1.setBaseLayer(light_all);
+                    //map.setBaseLayer(dark_all);
+                    document.cookie = "toolbar_theam=light";
+                }
+            },
+            genTost: function (elemt, title, time, body) {
+                var toastTrigger = document.getElementById(elemt)
+                var toastLiveExample = document.getElementById('myToas');
+                console.log(toastLiveExample)
+                toastLiveExample.innerHTML =
+                    ' <div class="toast-header"><img src="assets/css/images/POLICE.png" width="15" class="rounded me-2" alt="..."> <strong class="me-auto ucwords">' +
+                    title + '</strong><small>' + time +
+                    '</small><button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button> </div><div class="toast-body">' +
+                    body + '</div>';
+
+                if (toastTrigger) {
+                    toastTrigger.addEventListener('click', () => {
+                        console.log(toast);
+                        var toast = new bootstrap.Toast(toastLiveExample, {
+                            autohide: false
+                        })
+
+                        console.log(toast);
+                        toast.show()
+                    })
+                }
+
+            },
+            generateButton: function (text, custom_class) {
+                const button = document.createElement('button')
+                button.innerHTML = text
+                button.setAttribute("class", custom_class);
+                return button;
+            },
+
+            mapTostOptions: function (ele) {
+
+
+
+
+                var toastTrigger = document.getElementById(ele)
+
+
+
+                if (toastTrigger) {
+                    toastTrigger.addEventListener('click', () => {
+
+                        // var btn_add = template.generateButton('Add', 'btn btn-sm btn-app btn-success')
+                        //btn_add.setAttribute("onclick", "");
+                        var bstatus_traiLine = ''
+                        var bstatus_unitViewRange = ''
+                        var bstatus_markerPoint = ''
+
+                        if (traiLine == 'true') {
+                            bstatus_traiLine = 'checked'
+                        }
+                        if (unitViewRange == 'true') {
+                            bstatus_unitViewRange = 'checked'
+                        }
+                        if (markerPoint == 'true') {
+                            bstatus_markerPoint = 'checked'
+                        }
+
+                        //    template.genTost('dept_'+depts[i],'<b class="ucwords">'+deptList[depts[i]].dept.deptname+'<b>','',html)
+
+                        var title = '<b class="ucwords">Marker Configuration</b>';
+                        var time = "";
+                        var html = 'You can customize your viewing experience (show/hide)<br>';
+                        html +=
+                            '<select  id="top_marker_types" class="form-select" aria-label="Default select example">';
+                        html += '<option selected>Change marker types</option>';
+                        html += '<option value="ellipse">ellipse</option>';
+                        html += '<option value="x">x</option>';
+                        html += '<option value="triangle">triangle</option>';
+                        html += '<option value="square">square</option>';
+                        html += '<option value="diamond">diamond</option>';
+                        html += '<option value="bar">bar</option>';
+                        html += '<option value="pie">pie</option>';
+                        html += '<option value="pin">pin</option>';
+                        html += '<option value="rectangle">rectangle</option>';
+                        html += '</select>'
+                        html += '<div class="form-check">'
+                        html +=
+                            '<input class="form-check-input" type="checkbox" value="" id="top_marker_trailline" ' +
+                            bstatus_traiLine + '>'
+                        html +=
+                            '<label class="form-check-label" for="top_marker_trailline">Trail Line </label></div>'
+
+                        html += '<div class="form-check">'
+                        html +=
+                            '<input class="form-check-input" type="checkbox" value="" id="top_marker_circle" ' +
+                            bstatus_unitViewRange + '>'
+                        html +=
+                            '<label class="form-check-label" for="top_marker_circle">Circle </label></div>'
+                        html += '<div class="form-check">'
+                        html +=
+                            '<input class="form-check-input" type="checkbox" value="" id="top_marker_point" ' +
+                            bstatus_markerPoint + '>'
+                        html +=
+                            '<label class="form-check-label" for="top_marker_point">Point </label></div>'
+
+                        var toastLiveExample = document.getElementById('myToas');
+                        //  $(toastLiveExample).addClass('text-bg-primary')
+                        toastLiveExample.innerHTML =
+                            ' <div class="toast-header text-bg-warning"><img src="assets/css/images/POLICE.png" width="15" class="rounded me-2" alt="..."> <strong class="me-auto ucwords">' +
+                            title + '</strong><small>' + time +
+                            '</small><button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button> </div><div class="toast-body">' +
+                            html + '</div>';
+
+
+                        var toast = new bootstrap.Toast(toastLiveExample, {
+                            autohide: false
+                        })
+
+
+                        toast.show()
+                        document.getElementById('top_marker_types').addEventListener("change",
+                            function () {
+                                var activeUnits = subcatList['activeUnits']
+                                console.log(this.value)
+                                markerTypes = this.value
+                                for (let i = 0; i < activeUnits.length; ++i) {
+                                    if (typeof mUnits['marker_' + activeUnits[i]] !==
+                                        'undefined') {
+                                        var x = mUnits['marker_' + activeUnits[i]].getSymbol()
+                                        x[0].markerType = markerTypes;
+                                        mUnits['marker_' + activeUnits[i]].updateSymbol(x)
+                                    }
+
+                                }
+
+                                document.cookie = "map_marker_types=" + markerTypes;
+                            });
+                        document.getElementById('top_marker_point').addEventListener("click",
+                            function () {
+                                var activeUnits = subcatList['activeUnits']
+                                if (markerPoint == 'true') {
+                                    markerPoint = 'false'
+                                    for (let i = 0; i < activeUnits.length; ++i) {
+                                        if (typeof mUnits['marker_' + activeUnits[i]] !==
+                                            'undefined') {
+                                            mUnits['marker_' + activeUnits[i]].hide()
+                                        }
+
+                                    }
+                                } else {
+                                    markerPoint = 'true'
+                                    for (let i = 0; i < activeUnits.length; ++i) {
+                                        if (typeof mUnits['marker_' + activeUnits[i]] !==
+                                            'undefined') {
+                                            mUnits['marker_' + activeUnits[i]].show()
+                                        }
+                                    }
+
+                                }
+                                document.cookie = "map_marker_markerPoint=" + markerPoint;
+                            });
+                        document.getElementById('top_marker_trailline').addEventListener("click",
+                            function () {
+                                var activeUnits = subcatList['activeUnits']
+                                if (traiLine == 'true') {
+                                    traiLine = 'false'
+                                    for (let i = 0; i < activeUnits.length; ++i) {
+                                        if (typeof mUnits['line_' + activeUnits[i]] !==
+                                            'undefined') {
+                                            mUnits['line_' + activeUnits[i]].hide()
+                                        }
+
+                                    }
+                                } else {
+                                    traiLine = 'true'
+                                    for (let i = 0; i < activeUnits.length; ++i) {
+                                        if (typeof mUnits['line_' + activeUnits[i]] !==
+                                            'undefined') {
+                                            mUnits['line_' + activeUnits[i]].show()
+                                        }
+                                    }
+
+                                }
+                                document.cookie = "map_marker_traiLine=" + traiLine;
+                            });
+                        document.getElementById('top_marker_circle').addEventListener("click",
+                            function () {
+                                var activeUnits = subcatList['activeUnits']
+                                if (unitViewRange == 'true') {
+                                    unitViewRange = 'false'
+                                    for (let i = 0; i < activeUnits.length; ++i) {
+                                        if (typeof mUnits['circle_' + activeUnits[i]] !==
+                                            'undefined') {
+                                            mUnits['circle_' + activeUnits[i]].hide()
+                                        }
+                                    }
+                                } else {
+                                    unitViewRange = 'true'
+                                    for (let i = 0; i < activeUnits.length; ++i) {
+                                        if (typeof mUnits['circle_' + activeUnits[i]] !==
+                                            'undefined') {
+                                            mUnits['circle_' + activeUnits[i]].show()
+                                        }
+                                    }
+
+                                }
+                                document.cookie = "map_marker_unitViewRange=" + unitViewRange;
+
+                            });
+
+                    })
+                }
+            },
+            groupTostRemoveOptions: function (ele) {
+                var mysubcats = subcatList['mysubcats']
+                var deptList = subcatList['deptlist']
+                var html = '';
+                for (let i = 0; i < mysubcats.length; ++i) {
+
+                    var btn_remove = template.generateButton('<span class="fa fa-trash"></span>',
+                        'btn btn-sm btn-app btn-outline-danger')
+                    btn_remove.setAttribute("onclick", "myList('" + mysubcats[i] +
+                        "','remove');$(this).parent().remove();");
+                    html += '<div >' + btn_remove.outerHTML + ' <b class="ucwords">' + deptList[mysubcats[i]]
+                        .dept.deptname + '</b></div>'
+
+                }
+                $('#activeGroupFilters').html(html);
+
+            }
+        }
+
+
+
+        function renderLiveMotorola() {
+
+            var socket = io.connect('//top.police.gov.mv:4000');
+            socket.on('livedata', function (data) {
+
+                const liveDataArray = data.split(",");
+
+
+
+
+                $('.top_socketUpdate').html(parseInt($('.top_socketUpdate').html()) + 1);
+                $('.mapServerTime').html(liveDataArray[0]);
+
+                if (typeof subcatList['unitsList'][liveDataArray[1]] == 'undefined') {
+
+                    var errorLog = '<div id="error_' + liveDataArray[1] +
+                        '" ><b  class=" text-warning"><span class="fa   fa-exclamation-triangle"></span> </b>    <b  class=" text-danger">' +
+                        liveDataArray[1] +
+                        '</b>   - Not assigned to a group</div>'
+                    if ($('#error_' + liveDataArray[1] + '').length == 0) {
+                        $('#error-info').append(errorLog)
+                    }
+                    //turfjs.nearestPoint(subcatList['unitsList'][liveDataArray[1]] );
+                } else {
+
+                    subcatList['deptlist'][subcatList['unitsList'][liveDataArray[1]].deptid].dept.activeTotal
+                        .push(liveDataArray[1])
+                    subcatList['deptlist'][subcatList['unitsList'][liveDataArray[1]].deptid].dept.activeTotal =
+                        removeDuplicates(subcatList['deptlist'][subcatList['unitsList'][liveDataArray[1]]
+                            .deptid
+                        ].dept.activeTotal);
+                    //   timestamp: liveDataArray[0],
+                    //      color: '#FA002A',
+                    //     unitno: liveDataArray[1],
+                    //     deprname: 'my Dept',
+                    //     issuedto: 'C1729',
+                    //     coordinates: [liveDataArray[3], liveDataArray[2]],
+                    //  $('.top_unit_'+liveDataArray[1]).show();
+                    // $('#dept_'+subcatList['unitsList'][liveDataArray[1]].deptid).show();
+
+                    subcatList['unitsList'][liveDataArray[1]].display = ''
+                    subcatList['unitsList'][liveDataArray[1]].time = liveDataArray[0]
+                    subcatList['unitsList'][liveDataArray[1]].coordinates = [liveDataArray[3], liveDataArray[2]]
+                    subcatList['unitsList'][liveDataArray[1]].last_known_lat = liveDataArray[2]
+                    subcatList['unitsList'][liveDataArray[1]].last_known_lon = liveDataArray[3]
+                    subcatList['unitsList'][liveDataArray[1]].liveDetails = liveDataArray[8]
+                    subcatList['activeUnits'].push(liveDataArray[1])
+                    subcatList['activeUnits'] = removeDuplicates(subcatList['activeUnits']);
+                    $('.mapActiveUnitsTotal').html(subcatList['activeUnits'].length)
+
+                    $('.top_totalGroups').html(subcategoryids.length)
+
+                    $('.top_totalMyGroups').html(subcatList['mysubcats'].length);
+
+
+                    $('.activeCnt_' + subcatList['unitsList'][liveDataArray[1]].deptid).html(subcatList[
+                            'deptlist'][subcatList['unitsList'][liveDataArray[1]].deptid].dept.activeTotal
+                        .length)
+                    $('.myactiveCnt_' + subcatList['unitsList'][liveDataArray[1]].deptid).html(subcatList[
+                            'deptlist'][subcatList['unitsList'][liveDataArray[1]].deptid].dept.activeTotal
+                        .length)
+
+
+                    if (subcatList['unitsList'][liveDataArray[1]].visible == false) {
+
+                        genunit(subcatList['unitsList'][liveDataArray[1]])
+
+                        if (limitSidebar == true) {
+                            limitSidebarForMap()
+                        }
+
+                    } else {
+                        autoUpdateUnitLatLang(liveDataArray[1], liveDataArray[0]);
+                    }
+                    subcatList['unitsList'][liveDataArray[1]].visible = true
+                    // turfjs.nearestPoint(subcatList['unitsList'][liveDataArray[1]] );
+                }
+
+            });
+            socket.on('time', function (data) {
+
+            });
+            socket.on('error', function () {
+                console.error(arguments)
+            });
+            socket.on('message', function () {
+                console.log(arguments)
+            });
+
+        }
+
+
+        //subcatList['assignedUnits'] = [];
+
+        subcatList['mysubcats'] = getCookie('toolbar_myGroups').split(",")
+        arrayRemove(subcatList['mysubcats'], '')
+
+        async function genDepartmentList() {
+            subcatList['deptlist'] = []
+            subcatList['unitsList'] = []
+            subcatList['activeUnits'] = []
+            subcatList['subcategoryids'] = []
+
+            var promise = server_GeoApi.getDepartmentList();
+            promise.then(function (data) {
+                var dts = JSON.parse(data);
+                for (let i = 0; i < dts.length; i++) {
+                    subcategoryids.push(dts[i].id);
+                    if (typeof departmentList[dts[i].id] == 'undefined') {
+                        departmentList[dts[i].id] = [];
+                        //subcatList['assignedUnits'][dts[i].subcategoryid] = [];
+                    }
+                    departmentList[dts[i].id]['dept'] = dts[i];
+                    departmentList[dts[i].id]['dept'].activeTotal = [];
+                    departmentList[dts[i].id]['units'] = [];
+                    renderArray.renderDeptList(dts[i]);
+                    //genDepartmentUnitList(dts[i],'#unitListHtml')
+
+                }
+                subcategoryids = removeDuplicates(subcategoryids)
+                $('.top_totalGroups').html(subcategoryids.length)
+
+                subcatList['deptlist'] = departmentList
+                subcatList['subcategoryids'] = subcategoryids
+
+                //subcategoryids.forEach(genDepartmentUnitList);
+                // renderArray.renderDeptList(subcatList);
+                setTimeout(() => {
+                    genDepartmentUnitList('#unitListHtml')
+
+                }, 100)
+
+            }, function (error) {
+                console.log(error);
+            });
+        }
+
+        function renderUnits(renderto) {
+            var subcats = subcatList['subcategoryids']
+            for (let i = 0; i < subcats.length; i++) {
+
+                var promise = server_GeoApi.getUnitbyDeptid(subcats[i]);
+                promise.then(function (data) {
+
+                    data = JSON.parse(data);
+
+                    if (data != null) {
+                        console.log(data)
+                        renderArray.renderUnitList(data, renderto);
+
+                    }
+                })
+            }
+
+        }
+
+        function genDepartmentUnitList(renderto) {
+
+            var subcats = subcatList['subcategoryids']
+            for (let i = 0; i < subcats.length; i++) {
+
+
+                var promise = server_GeoApi.getUnitbyDeptid(subcats[i]);
+                promise.then(function (data) {
+
+                    data = JSON.parse(data);
+                    if (data != null) {
+                        for (let i = 0; i < data.length; i++) {
+                            subcatList['unitsList'][data[i].unitno] = data[i]
+                            subcatList['unitsList'][data[i].unitno].visible = false
+                            subcatList['unitsList'][data[i].unitno].display = 'none'
+                            subcatList['unitsList'][data[i].unitno].liveDetails = ''
+
+                            if (subcatList['unitsList'][data[i].unitno].serviceno != null) {
+                                $('.top_unitsIssued').html(parseInt($('.top_unitsIssued').html()) + 1)
+                                //  $('.top_unitsIssued_' + depts.dept.id).html(parseInt($('.top_unitsIssued_' +
+                                //  depts.dept.id).html()) + 1);
+                            }
+                        }
+
+                        var depts = subcatList['deptlist'][data[0].deptid]
+                        subcatList['deptlist'][data[0].deptid]['units'] = data;
+
+
+                        setTimeout(() => {
+                            $('.top_totalUnits').html(parseInt($('.top_totalUnits').html()) + data
+                                .length);
+                            $('.top_deptTotal_' + depts.dept.subcategoryid).html(parseInt($(
+                                    '.top_deptTotal_' + depts.dept.subcategoryid).html()) + data
+                                .length);
+                            $('.top_groupTotal_' + depts.dept.id).html(parseInt($('.top_groupTotal_' +
+                                depts.dept.id).html()) + data.length);
+
+
+                            ///renderArray.renderUnitList(data, renderto);
+                        }, 100)
+
+                    }
+                })
+
+                if (i == subcats.length - 1) {
+                    setTimeout(() => {
+                        iniMapFunctions()
+                    }, 1000)
+                }
+
+            }
+        }
+
+
+
+        maplayers['Radio Units'] = new maptalks.VectorLayer('Radio Units', {
+            layerDescription: 'Tetra radio tracking (live)',
+            enableAltitude: true
+            // draw altitude
+
+        }).addTo(map1);
+
+        function genunit(data) {
+
+
+            mUnits['circle_' + data.unitno] = new maptalks.Circle(data.coordinates, 10, {
+                symbol: {
+                    lineColor: data.deptcolor,
+                    lineWidth: 2,
+                    polygonFill: data.deptcolor,
+                    polygonOpacity: 0.4,
+                    lineOpacity: 0.4
+                }
+            });
+
+
+            mUnits['marker_' + data.unitno] = new maptalks.Marker(data.coordinates, {
+                cursor: 'pointer',
+                shadowBlur: 1,
+                shadowColor: 'grey',
+                markerOpacity: 0.5,
+                markerFill: data.deptcolor,
+                currentlatlng: [1, 1],
+                enableAltitude: true, // enable altitude
+                altitudeProperty: 'altitude', // altitude property in properties, default by 'altitude'
+                properties: {
+                    altitude: 1
+                },
+                cc: {
+                    timestamp: data.timestamp,
+                    deprname: data.deprname
+                },
+                symbol: [{
+                    'textVerticalAlignment': 'top', // top, middle, bottom(default)
+                    'textDy': 24,
+                    'textName': data.unitno,
+                    'textSize': '14',
+                    'textFill': '#7C7B7B',
+                    'markerType': markerTypes,
+                    'markerFill': data.deptcolor,
+                    'markerFillOpacity': 0.4,
+                    'markerLineColor': data.deptcolor,
+                    'markerLineWidth': 1,
+                    'markerLineOpacity': 1,
+                    'markerWidth': {
+                        stops: [
+                            [14, 6],
+                            [18, 16]
+                        ]
+                    },
+                    'markerHeight': {
+                        stops: [
+                            [14, 7],
+                            [18, 17]
+                        ]
+                    },
+                    'markerDx': 0,
+                    'markerDy': 0,
+                    'markerOpacity': 0.8
+                }],
+
+            });
+
+
+            var renderMarkerInfo = {
+
+                html: function (unitno) {
+                    var x = '<div style="width: 250px !important;"  class="cmaptalks-content inforbox_' + data
+                        .unitno + '">' +
+                        '<ul class="list-group"><li class="list-group-item d-flex justify-content-between align-items-center">' +
+                        '<h4><span class="fa fa-map-marker text-success"></span> ' + data.unitno + '' +
+                        ' <div><h6 class="text-muted ucwords">' + data.deptname + '</h6></div> </h4>' +
+                        ' <div><small class="card-title text-danger  ">' + data.time + '</small><div>' +
+                        ' </li></ul>' +
+                        '<div class="cmaptalks-arrow"></div>' +
+                        '</div>'
+                    mUnits['infoWindow_' + unitno].setContent(x)
+                }
+
+            }
+            var options = {
+                'autoCloseOn': 'click',
+                'autoOpenOn': 'click', //set to null if not to open window when clicking on map
+                'single': false,
+                'width': 183,
+                'height': 50,
+                'custom': true,
+                'autoUpdate': setInterval(function () {
+                    renderMarkerInfo.html(data.unitno)
+                }, 1000),
+                'dx': -55,
+                'dy': 60,
+                'content': '<div style="width: 250px !important;" class="cmaptalks-content inforbox_' + data
+                    .unitno + '">' +
+                    '<ul class="list-group"><li class="list-group-item d-flex justify-content-between align-items-center">' +
+                    '<h4><span class="fa fa-map-marker text-success"></span> ' + data.unitno + '' +
+                    ' <div><h6 class="text-muted ucwords">' + data.deptname + '</h6></div> </h4>' +
+                    ' <div><small class="card-title text-danger  ">' + data.time + '</small><div>' +
+                    ' </li></ul>' +
+
+                    '<div class="cmaptalks-arrow"></div>' +
+                    '</div>'
+            };
+
+            // var infoWindow = new maptalks.ui.InfoWindow(options);
+            mUnits['infoWindow_' + data.unitno] = new maptalks.ui.InfoWindow(options);
+            mUnits['marker_' + data.unitno].setInfoWindow(mUnits['infoWindow_' + data.unitno]);
+            /*
+             mUnits['marker_' + data.unitno].setInfoWindow({
+                 'title'     : data.unitno,
+                 'content'   : '<ul class="contacts-list chatContactTab_' + data.unitno+'"  data-chat-list=""></ul>',
+                  'autoPan': true,
+                 // 'width': 300,
+                 // 'minHeight': 120,
+                 'custom': true,
+                 'autoOpenOn' : 'click',  //set to null if not to open when clicking on marker
+                  'autoCloseOn' : 'click'
+             });
+            */
+
+
+            var c = map1.getCenter();
+
+            mUnits['line_' + data.unitno] = new maptalks.LineString(
+                [{
+                    x: 0,
+                    y: 0,
+                    z: 0
+                }, {
+                    x: 0,
+                    y: 0,
+                    z: 0
+                }], {
+                    symbol: {
+                        // linear gradient
+                        'lineColor': {
+                            'type': 'linear',
+                            'colorStops': [
+                                [0.00, 'white'],
+                                [1 / 4, 'aqua'],
+                                [2 / 4, 'green'],
+                                [3 / 4, 'orange'],
+                                [1.00, 'red']
+                            ]
+                        },
+                        'lineWidth': 2
+                    }
+                }).addTo(maplayers['Radio Units']);
+            if (traiLine == 'false') {
+                mUnits['line_' + data.unitno].hide()
+            }
+            if (markerPoint == 'false') {
+                mUnits['marker_' + data.unitno].hide()
+            }
+            map1.getLayer('Radio Units').addGeometry(mUnits['circle_' + data.unitno], mUnits['marker_' + data
+                .unitno]);
+            if (unitViewRange == 'false') {
+                mUnits['circle_' + data.unitno].hide()
+            }
+            liveUnitIds.push(data.unitno);
+
+        }
+
+        function autoUpdateUnitLatLang(unitno, timestamp) {
+
+            var clatlng = mUnits['circle_' + unitno].getCoordinates();
+            var ulatlng = subcatList['unitsList'][unitno].coordinates
+
+
+
+
+            if ((clatlng.x != ulatlng[0] && clatlng.y != ulatlng[1]) && (clatlng.x != 0 && ulatlng[1] != 0)) {
+                var coordinates = [{
+                    x: clatlng.x.toString(),
+                    y: clatlng.y.toString(),
+                    z: 0
+                }, {
+                    x: ulatlng[0],
+                    y: ulatlng[1],
+                    z: 0
+                }];
+
+
+                mUnits['marker_' + unitno].options.lastlatlng = mUnits['marker_' + unitno].options.currentlatlng;
+                mUnits['marker_' + unitno].options.currentlatlng = [clatlng.x, clatlng.y]
+                mUnits['marker_' + unitno].setCoordinates(ulatlng);
+                mUnits['circle_' + unitno].setCoordinates(ulatlng);
+
+
+                mUnits['line_' + unitno].setCoordinates(coordinates);
+                if (traiLine == 'true') {
+                    mUnits['line_' + unitno].animateShow({
+                            duration: 1000,
+                            easing: 'linear'
+                        },
+                        function (frame, c) {
+                            //  unitMarker[mid].show();
+                            currentCoordinate = c.copy();
+                            mUnits['marker_' + unitno].setCoordinates(currentCoordinate);
+                            mUnits['circle_' + unitno].setCoordinates(currentCoordinate);
+                            currentCoordinate = '';
+                            preCoordinate = c.copy();
+                        }
+                    );
+                }
+
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+        var visibleDepts = [];
+
+        function limitSidebarForMap() {
+
+            var extent = map1.getExtent();
+            //  console.log(map1.getBaseLayer().layers)
+            //  map1.setBaseLayer(map1.getBaseLayer().layers[1])
+            var radioUnits = subcatList['activeUnits'];
+            var unit = subcatList['unitsList'];
+            var depts = subcatList['subcategoryids'];
+            $('.inMapViewCnt').html(0);
+            //  $('.top_depts' ).fadeOut(200).attr("style", "display:none  !important");
+            //   $('.top_units' ).fadeOut(200).attr("style", "display:none  !important");
+            // $('.top_depts' ).attr("style", "display:none  !important");
+            // $('.top_units' ).attr("style", "display: none !important");
+
+            for (let i = 0; i < radioUnits.length; ++i) {
+
+                var o = mUnits['marker_' + radioUnits[i]].getCoordinates()
+                if (extent.xmax > o.x && extent.xmin < o.x && extent.ymax > o.y && extent.ymin < o.y) {
+                    visibleDepts.push(unit[radioUnits[i]].deptid)
+                    $('.top_unitsOnMapView').html(visibleDepts.length)
+                    $('.inMapViewCnt_' + unit[radioUnits[i]].deptid).html(parseInt($('.inMapViewCnt_' + unit[radioUnits[
+                        i]].deptid).html()) + 1)
+                    //     $('#dept_' + unit[radioUnits[i]].deptid).attr("style", "display:  !important");
+                    $('.top_unit_' + radioUnits[i]).attr("style", "display:  !important");
+                } else {
+                    $('.top_unit_' + radioUnits[i]).attr("style", "display:none  !important");
+                }
+            }
+            for (let i = 0; i < depts.length; ++i) {
+
+
+
+                if (visibleDepts.includes(depts[i]) == true) {
+                    $('#dept_' + depts[i]).attr("style", "display:  !important");
+                } else {
+                    $('#dept_' + depts[i]).attr("style", "display:none  !important");
+
+                }
+            }
+            visibleDepts = []
+        }
+
+
+
+
+        var template = {
+
+
+            toggleFullScreen: function (e) {
+                var elem = document.getElementById(e);
+
+                if (document.fullscreenEnabled) {
+                    /* Show the element in fullscreen */
+                    elem.requestFullscreen();
+                }
+            },
+
+            mapObjectView: function (objectid) {
+
+
+                /*
+                   var p = server_GeoApi.getIslandsInView();
+                   console.log(p)
+                        p.then(function (data) {
+                            var features = JSON.parse(data);
+                            console.log(features)
+                             
+
+                        }, function (error) {
+                            console.log(error);
+                        });
+
+
+                */
+            },
+            switchDarkMode: function () {
+
+                 
+
+                if (document.getElementById('top-mc').dataset.bsTheme == 'light') {
+                    document.getElementById('top-mc').dataset.bsTheme = 'dark';
+                    document.cookie = "toolbar_theam=dark";
+                } else {
+                    document.getElementById('top-mc').dataset.bsTheme = 'light';
+                    document.cookie = "toolbar_theam=light";
+                }
+            },
+            genTost: function (elemt, title, time, body) {
+                var toastTrigger = document.getElementById(elemt)
+                var toastLiveExample = document.getElementById('myToas');
+                console.log(toastLiveExample)
+                toastLiveExample.innerHTML =
+                    ' <div class="toast-header"><img src="assets/css/images/POLICE.png" width="15" class="rounded me-2" alt="..."> <strong class="me-auto ucwords">' +
+                    title + '</strong><small>' + time +
+                    '</small><button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button> </div><div class="toast-body">' +
+                    body + '</div>';
+
+                if (toastTrigger) {
+                    toastTrigger.addEventListener('click', () => {
+                        console.log(toast);
+                        var toast = new bootstrap.Toast(toastLiveExample, {
+                            autohide: false
+                        })
+
+                        console.log(toast);
+                        toast.show()
+                    })
+                }
+
+            },
+            generateButton: function (text, custom_class) {
+                const button = document.createElement('button')
+                button.innerHTML = text
+                button.setAttribute("class", custom_class);
+                return button;
+            },
+
+            mapTostOptions: function (ele) {
+
+
+
+
+                var toastTrigger = document.getElementById(ele)
+
+
+
+                if (toastTrigger) {
+                    toastTrigger.addEventListener('click', () => {
+
+                        // var btn_add = template.generateButton('Add', 'btn btn-sm btn-app btn-success')
+                        //btn_add.setAttribute("onclick", "");
+                        var bstatus_traiLine = ''
+                        var bstatus_unitViewRange = ''
+                        var bstatus_markerPoint = ''
+
+                        if (traiLine == 'true') {
+                            bstatus_traiLine = 'checked'
+                        }
+                        if (unitViewRange == 'true') {
+                            bstatus_unitViewRange = 'checked'
+                        }
+                        if (markerPoint == 'true') {
+                            bstatus_markerPoint = 'checked'
+                        }
+
+                        //    template.genTost('dept_'+depts[i],'<b class="ucwords">'+deptList[depts[i]].dept.deptname+'<b>','',html)
+
+                        var title = '<b class="ucwords">Marker Configuration</b>';
+                        var time = "";
+                        var html = 'You can customize your viewing experience (show/hide)<br>';
+                        html +=
+                            '<select  id="top_marker_types" class="form-select" aria-label="Default select example">';
+                        html += '<option selected>Change marker types</option>';
+                        html += '<option value="ellipse">ellipse</option>';
+                        html += '<option value="x">x</option>';
+                        html += '<option value="triangle">triangle</option>';
+                        html += '<option value="square">square</option>';
+                        html += '<option value="diamond">diamond</option>';
+                        html += '<option value="bar">bar</option>';
+                        html += '<option value="pie">pie</option>';
+                        html += '<option value="pin">pin</option>';
+                        html += '<option value="rectangle">rectangle</option>';
+                        html += '</select>'
+                        html += '<div class="form-check">'
+                        html +=
+                            '<input class="form-check-input" type="checkbox" value="" id="top_marker_trailline" ' +
+                            bstatus_traiLine + '>'
+                        html +=
+                            '<label class="form-check-label" for="top_marker_trailline">Trail Line </label></div>'
+
+                        html += '<div class="form-check">'
+                        html +=
+                            '<input class="form-check-input" type="checkbox" value="" id="top_marker_circle" ' +
+                            bstatus_unitViewRange + '>'
+                        html +=
+                            '<label class="form-check-label" for="top_marker_circle">Circle </label></div>'
+                        html += '<div class="form-check">'
+                        html +=
+                            '<input class="form-check-input" type="checkbox" value="" id="top_marker_point" ' +
+                            bstatus_markerPoint + '>'
+                        html +=
+                            '<label class="form-check-label" for="top_marker_point">Point </label></div>'
+
+                        var toastLiveExample = document.getElementById('myToas');
+                        //  $(toastLiveExample).addClass('text-bg-primary')
+                        toastLiveExample.innerHTML =
+                            ' <div class="toast-header text-bg-warning"><img src="assets/css/images/POLICE.png" width="15" class="rounded me-2" alt="..."> <strong class="me-auto ucwords">' +
+                            title + '</strong><small>' + time +
+                            '</small><button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button> </div><div class="toast-body">' +
+                            html + '</div>';
+
+
+                        var toast = new bootstrap.Toast(toastLiveExample, {
+                            autohide: false
+                        })
+
+
+                        toast.show()
+                        document.getElementById('top_marker_types').addEventListener("change",
+                            function () {
+                                var activeUnits = subcatList['activeUnits']
+                                console.log(this.value)
+                                markerTypes = this.value
+                                for (let i = 0; i < activeUnits.length; ++i) {
+                                    if (typeof mUnits['marker_' + activeUnits[i]] !==
+                                        'undefined') {
+                                        var x = mUnits['marker_' + activeUnits[i]].getSymbol()
+                                        x[0].markerType = markerTypes;
+                                        mUnits['marker_' + activeUnits[i]].updateSymbol(x)
+                                    }
+
+                                }
+
+                                document.cookie = "map_marker_types=" + markerTypes;
+                            });
+                        document.getElementById('top_marker_point').addEventListener("click",
+                            function () {
+                                var activeUnits = subcatList['activeUnits']
+                                if (markerPoint == 'true') {
+                                    markerPoint = 'false'
+                                    for (let i = 0; i < activeUnits.length; ++i) {
+                                        if (typeof mUnits['marker_' + activeUnits[i]] !==
+                                            'undefined') {
+                                            mUnits['marker_' + activeUnits[i]].hide()
+                                        }
+
+                                    }
+                                } else {
+                                    markerPoint = 'true'
+                                    for (let i = 0; i < activeUnits.length; ++i) {
+                                        if (typeof mUnits['marker_' + activeUnits[i]] !==
+                                            'undefined') {
+                                            mUnits['marker_' + activeUnits[i]].show()
+                                        }
+                                    }
+
+                                }
+                                document.cookie = "map_marker_markerPoint=" + markerPoint;
+                            });
+                        document.getElementById('top_marker_trailline').addEventListener("click",
+                            function () {
+                                var activeUnits = subcatList['activeUnits']
+                                if (traiLine == 'true') {
+                                    traiLine = 'false'
+                                    for (let i = 0; i < activeUnits.length; ++i) {
+                                        if (typeof mUnits['line_' + activeUnits[i]] !==
+                                            'undefined') {
+                                            mUnits['line_' + activeUnits[i]].hide()
+                                        }
+
+                                    }
+                                } else {
+                                    traiLine = 'true'
+                                    for (let i = 0; i < activeUnits.length; ++i) {
+                                        if (typeof mUnits['line_' + activeUnits[i]] !==
+                                            'undefined') {
+                                            mUnits['line_' + activeUnits[i]].show()
+                                        }
+                                    }
+
+                                }
+                                document.cookie = "map_marker_traiLine=" + traiLine;
+                            });
+                        document.getElementById('top_marker_circle').addEventListener("click",
+                            function () {
+                                var activeUnits = subcatList['activeUnits']
+                                if (unitViewRange == 'true') {
+                                    unitViewRange = 'false'
+                                    for (let i = 0; i < activeUnits.length; ++i) {
+                                        if (typeof mUnits['circle_' + activeUnits[i]] !==
+                                            'undefined') {
+                                            mUnits['circle_' + activeUnits[i]].hide()
+                                        }
+                                    }
+                                } else {
+                                    unitViewRange = 'true'
+                                    for (let i = 0; i < activeUnits.length; ++i) {
+                                        if (typeof mUnits['circle_' + activeUnits[i]] !==
+                                            'undefined') {
+                                            mUnits['circle_' + activeUnits[i]].show()
+                                        }
+                                    }
+
+                                }
+                                document.cookie = "map_marker_unitViewRange=" + unitViewRange;
+
+                            });
+
+                    })
+                }
+            },
+            groupTostRemoveOptions: function (ele) {
+                var mysubcats = subcatList['mysubcats']
+                var deptList = subcatList['deptlist']
+                var html = '';
+                for (let i = 0; i < mysubcats.length; ++i) {
+
+                    var btn_remove = template.generateButton('<span class="fa fa-trash"></span>',
+                        'btn btn-sm btn-app btn-outline-danger')
+                    btn_remove.setAttribute("onclick", "myList('" + mysubcats[i] +
+                        "','remove');$(this).parent().remove();");
+                    html += '<div >' + btn_remove.outerHTML + ' <b class="ucwords">' + deptList[mysubcats[i]]
+                        .dept.deptname + '</b></div>'
+
+                }
+                $('#activeGroupFilters').html(html);
+
+            },
+            mapLayerOptions: function (ele) {
+
+                var toastTrigger = document.getElementById(ele)
+                if (toastTrigger) {
+                    toastTrigger.addEventListener('click', () => {
+                        // server_GeoApi.getCameraLayer();
+                        //  server_GeoApi.getLocalSeaVesselLayer();
+                        $('#maplayersHtml').html('');
+
+                        var html = '<div class="accordion" id="maplayersList">';
+
+                        for (let it = 0; it < mapLayerGroups.length; ++it) {
+                            html +=
+                                ' <div class="accordion-item">    <h2 class="accordion-header" id="group_' +
+                                mapLayerGroups[it].name +
+                                '">      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_' +
+                                mapLayerGroups[it].name +
+                                '" aria-expanded="true" aria-controls="collapse_' + mapLayerGroups[it]
+                                .name + '">' + mapLayerGroups[it].title +
+                                '  - <small class="text-muted pull-right">' + mapLayerGroups[it].name +
+                                '</small></button></h2><div id="collapse_' + mapLayerGroups[it].name +
+                                '" class="accordion-collapse collapse " aria-labelledby="group_' +
+                                mapLayerGroups[it].name +
+                                '" data-bs-parent="#maplayersList"><div class="accordion-body"></div></div>  </div>';
+                        }
+                        html += '</div>';
+                        $('#maplayersHtml').append(html);
+
+                        for (let im = 0; im < mapLayers.length; ++im) {
+                            var html = '<ul class="list-group">';
+                            for (let i = 0; i < mapLayers[im][mapLayerGroups[im].name].length; ++i) {
+                                var l = mapLayers[im][mapLayerGroups[im].name][i]
+                                html += ' <li class="list-group-item">'
+                                html +=
+                                    '<input class="form-check-input me-1" type="checkbox" value="" id="layer_' +
+                                    im + '_' + i + '">'
+                                html += '<label class="form-check-label" for="layer_' + im + '_' + i +
+                                    '">' + l.name + '  </label><small class="text-muted pull-right">' +
+                                    l.layerType + '</small><div><small class="text-muted ">' + l
+                                    .description + '</small></div></li>';
+
+
+                            }
+                            html += '</ul>';
+                            $('#collapse_' + mapLayerGroups[im].name + ' div').append(html);
+                            for (let i = 0; i < mapLayers[im][mapLayerGroups[im].name].length; ++i) {
+
+                                document.getElementById('layer_' + im + '_' + i + '').addEventListener(
+                                    "change",
+                                    function () {
+                                        var l = mapLayers[im][mapLayerGroups[im].name][i]
+                                        if (this.checked == true) {
+                                            console.log(this.checked)
+                                            switch (l.layerType) {
+
+                                                case 'Vector':
+                                                    bindLayersFunc.drawMap1Layer('server', l.name);
+                                                    break;
+                                                default:
+                                                    bindLayersFunc.draw3dMap1Layer(mapLayerGroups[
+                                                        im].name, l);
+                                                    break;
+
+                                            }
+
+
+                                        } else {
+                                            if (l.layerType == 'Vector') {
+                                                maplayerObjUQ[l.name] = []
+                                                map1.getLayer(l.name).clear()
+                                            } else {
+
+                                                switch (l.layerType) {
+
+                                                    case '3D':
+                                                        build_layer.clear()
+
+                                                        break;
+                                                    default:
+                                                        threeLayer.clear()
+                                                        break;
+
+                                                }
+
+
+
+                                            }
+
+                                        }
+
+                                    });
+
+                            }
+
+
+                        }
+
+
+                    })
+
+                }
+
+            },
+            groupTostOptions: function (ele) {
+                switch (ele) {
+                    case 'top_depts':
+                        console.log(subcatList)
+                        var depts = subcatList['subcategoryids']
+                        var deptList = subcatList['deptlist']
+                        for (let i = 0; i < depts.length; ++i) {
+
+
+                            var toastTrigger = document.getElementById('dept_' + depts[i])
+
+
+
+                            if (toastTrigger) {
+                                toastTrigger.addEventListener('click', () => {
+
+                                    var btn_add = template.generateButton('Add',
+                                        'btn btn-sm btn-app btn-success')
+                                    btn_add.setAttribute("onclick", "myList('" + depts[i] +
+                                        "');template.groupTostRemoveOptions()");
+
+                                    //    template.genTost('dept_'+depts[i],'<b class="ucwords">'+deptList[depts[i]].dept.deptname+'<b>','',html)
+
+                                    var title = '<b class="ucwords">' + deptList[depts[i]].dept
+                                        .deptname + '</b>';
+                                    var time = "";
+                                    var html = '';
+                                    html +=
+                                        'I want to manage my own filter list.(enables custom group filter options)';
+                                    html +=
+                                        '<div class="d-grid gap-2 d-md-flex justify-content-md-end">';
+                                    html += btn_add.outerHTML;
+
+                                    html += '</div>'
+                                    html += '<div id="activeGroupFilters"></div>'
+
+
+                                    var toastLiveExample = document.getElementById('myToas');
+                                    toastLiveExample.innerHTML =
+                                        ' <div class="toast-header text-bg-primary"><img src="assets/css/images/POLICE.png" width="15" class="rounded me-2" alt="..."> <strong class="me-auto ucwords">' +
+                                        title + '</strong><small>' + time +
+                                        '</small><button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button> </div><div class="toast-body">' +
+                                        html + '</div>';
+
+
+                                    var toast = new bootstrap.Toast(toastLiveExample, {
+                                        autohide: false
+                                    })
+
+                                    console.log(toast);
+                                    toast.show()
+                                    template.groupTostRemoveOptions()
+                                })
+                            }
+
+
+                        }
+
+
+                        break;
+
+                }
+            },
+            flyViewTostOptions: function (ele) {
+                var mapFlyViews = [{
+                        name: 'Capital Overview',
+                        coordinates: [73.51649, 4.18429],
+                        bearing: -3.60000,
+                        pitch: 63.20000,
+                        zoom: 14.957617104137901,
+                        description: 'Zoom in to view of Male ,Hulhule, Hulhumale and Dhoonidhoo'
+                    },
+                    {
+                        name: 'Male City',
+                        coordinates: [73.51039, 4.17439],
+                        bearing: 0,
+                        pitch: 0,
+                        zoom: 16,
+                        description: 'Zoom in to Male city'
+                    },
+                    {
+                        name: 'Hulhumale City',
+                        coordinates: [73.54240, 4.22154],
+                        bearing: -73,
+                        pitch: 0,
+                        zoom: 15,
+                        description: 'Zoom in to Hulhumale city'
+                    },
+                    {
+                        name: 'Ga. Villigili',
+                        coordinates: [73.43413, 0.75838],
+                        bearing: 88,
+                        pitch: 0,
+                        zoom: 15.79,
+                        description: 'Zoom in to Ga. Villigli area'
+                    },
+                    {
+                        name: 'Gdh. Thinadhoo',
+                        coordinates: [72.99806, 0.53199],
+                        bearing: -73,
+                        pitch: 0,
+                        zoom: 16.03,
+                        description: 'Zoom in to Gdh. Thinadhoo area'
+                    },
+                    {
+                        name: 'Laamu Atoll',
+                        coordinates: [73.49248256038058, 1.9025427815391625],
+                        bearing: 0,
+                        pitch: 0,
+                        zoom: 13,
+                        description: 'Zoom in to L atoll Funadhoo region'
+                    },
+                    {
+                        name: 'Fuvahmulah City',
+                        coordinates: [73.42450568609375, -0.2957235668254566],
+                        bearing: 0,
+                        pitch: 0,
+                        zoom: 14,
+                        description: 'Zoom in to Fuvahmulah city'
+                    },
+                    {
+                        name: 'Addu City',
+                        coordinates: [73.15801, -0.64636],
+                        bearing: 0,
+                        pitch: 0,
+                        zoom: 13,
+                        description: 'Zoom in to Addu atoll region'
+                    },
+                ]
+
+
+
+
+                var toastTrigger = document.getElementById(ele)
+
+
+
+                if (toastTrigger) {
+                    toastTrigger.addEventListener('click', () => {
+
+
+                        //    template.genTost('dept_'+depts[i],'<b class="ucwords">'+deptList[depts[i]].dept.deptname+'<b>','',html)
+
+                        var title = '<b class="ucwords">Fly View</b>';
+                        var time = "";
+                        var html = '';
+                        html +=
+                            'I want to manage my own filter list.(enables custom group filter options)';
+                        html += '<div class="d-grid gap-2 d-md-flex justify-content-md-end">';
+
+
+
+
+
+                        for (let i = 0; i < mapFlyViews.length; ++i) {
+                            var btn_add = template.generateButton('Add',
+                                'btn btn-sm btn-app btn-success')
+                            btn_add.setAttribute("onclick", "");
+                            html += btn_add.outerHTML;
+                        }
+                        html += '</div>'
+                        var toastLiveExample = document.getElementById('myToas');
+                        toastLiveExample.innerHTML =
+                            ' <div class="toast-header text-bg-primary"><img src="assets/css/images/POLICE.png" width="15" class="rounded me-2" alt="..."> <strong class="me-auto ucwords">' +
+                            title + '</strong><small>' + time +
+                            '</small><button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button> </div><div class="toast-body">' +
+                            html + '</div>';
+
+
+                        var toast = new bootstrap.Toast(toastLiveExample, {
+                            autohide: false
+                        })
+
+                        console.log(toast);
+                        toast.show()
+
+                    })
+
+                }
+
+            }
+        }
+
+
+        function myList(subcat, mode) {
+            if (mode == 'remove') {
+                arrayRemove(subcatList['mysubcats'], subcat);
+
+
+                document.cookie = "toolbar_myGroups=" + subcatList['mysubcats'].toString();
+
+                myList(null)
+            } else {
+                $('#myaccordionDepartments').html('')
+                console.log(subcatList)
+                if (subcat != null) {
+                    subcatList['mysubcats'].push(subcat)
+                    subcatList['mysubcats'] = removeDuplicates(subcatList['mysubcats'])
+                    console.log(subcatList['mysubcats']);
+                    document.cookie = "toolbar_myGroups=" + subcatList['mysubcats'].toString();
+
+                }
+
+
+                var subcats = subcatList['mysubcats']
+
+
+                for (let i = 0; i < subcatList['mysubcats'].length; ++i) {
+                    if (subcatList['mysubcats'][i] != null) {
+                        var x = subcatList['mysubcats'][i];
+                        //  $('.top_mydeptTotal_' + subcatList['deptlist'][x].dept.subcategoryid).html(0)
+                        //  $('.top_mygroupTotal_' + subcatList['deptlist'][x].dept.id).html(0)
+                        renderArray.renderMyDeptList(subcatList['mysubcats'][i]);
+
+                        setTimeout(() => {
+                            var x = subcatList['mysubcats'][i];
+                            $('.top_mygroupTotal_' + subcatList['deptlist'][x].dept.id).html(subcatList[
+                                'deptlist'][
+                                x
+                            ].units.length)
+                            $('.top_mydeptTotal_' + subcatList['deptlist'][x].dept.subcategoryid).html(parseInt(
+                                $(
+                                    '.top_mydeptTotal_' + subcatList['deptlist'][x].dept.subcategoryid)
+                                .html()) + subcatList['deptlist'][x].units.length);
+                        }, 100)
+                        //   $('.top_groupTotal_' + subcatList['mysubcats'][ii]).html(parseInt($('.top_groupTotal_' + subcats['mysubcats'][ii]).html())+subcats['deptlist'][subcats['mysubcats'][ii]].length);
+                        //   $('#collapseTwo_'+subcatList['mysubcats'][ii]).append(  $('.top_unit_'+subcatList['mysubcats'][ii]).html());
+                    }
+                }
+
+            }
+        }
+    </script>
+
+</body>

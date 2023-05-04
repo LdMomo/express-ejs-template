@@ -1,0 +1,137 @@
+     /* Horizontal toolbar */
+     .toolbar-horizontal {
+        --bs-card-bg: var(--bs-body-bg);
+        position: fixed;
+        top: 0px;
+        opacity: 0.7;
+      
+        padding-top: 8px;
+        padding-bottom: 8px;
+        padding-left: 1;
+        padding-right: 0;
+        border-radius: 0 0 6px 0;
+        z-index: 1;
+        
+
+
+    }
+
+    /* Vertical toolbar */
+    .toolbar-vertical {
+        position: fixed;
+        color: rgb(255, 252, 252);
+        bottom: 20px;
+        width: 60px;
+        right: 0;
+        opacity: 0.9;
+        margin: 0;
+        padding-top: 10px;
+        padding-bottom: 6px;
+        padding-left: 12px;
+        border-radius: 0 0 0 6px;
+        z-index: 1;
+    }
+    .custom-tooltip {
+        --bs-tooltip-bg: var(--bs-primary);
+    }
+
+     /* width */
+     ::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    /* Track */
+    ::-webkit-scrollbar-track {
+        background: #f1f1f117;
+    }
+
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+        background: rgba(136, 136, 136, 0.233);
+    }
+
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+
+    }
+
+    .ucwords {
+        text-transform: lowercase;
+        display: inline-block;
+    }
+
+    .ucwords::first-line {
+        text-transform: capitalize;
+    }
+    
+
+    html,body{margin:0px;height:100%;width:100%; }
+    .map-container{width:100%;height:100%}
+
+    .custom_card {
+        --bs-card-spacer-y: 1rem;
+        --bs-card-spacer-x: 1rem;
+        --bs-card-title-spacer-y: 0.5rem;
+        --bs-card-title-color: ;
+        --bs-card-subtitle-color: ;
+        --bs-card-border-width: var(--bs-border-width);
+        --bs-card-border-color: var(--bs-border-color-translucent);
+        --bs-card-border-radius: var(--bs-border-radius);
+        --bs-card-box-shadow: ;
+        --bs-card-inner-border-radius: calc(var(--bs-border-radius) - (var(--bs-border-width)));
+        --bs-card-cap-padding-y: 0.5rem;
+        --bs-card-cap-padding-x: 1rem;
+        --bs-card-cap-bg: rgba(var(--bs-body-color-rgb), 0.03);
+        --bs-card-cap-color: ;
+        --bs-card-height: ;
+        --bs-card-color: rgb(10, 223, 212);
+        --bs-card-bg: var(--bs-body-bg);
+        --bs-card-img-overlay-padding: 1rem;
+        --bs-card-group-margin: 0.75rem;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-width: 350px;
+        height: var(--bs-card-height);
+        word-wrap: break-word;
+        background-color: var(--bs-card-bg);
+        background-clip: border-box;
+        border: var(--bs-card-border-width) solid var(--bs-card-border-color);
+        border-radius: var(--bs-card-border-radius);
+
+        
+
+    }
+
+    .units_card {
+        --bs-card-spacer-y: 1rem;
+        --bs-card-spacer-x: 1rem;
+        --bs-card-title-spacer-y: 0.5rem;
+        --bs-card-title-color: ;
+        --bs-card-subtitle-color: ;
+        --bs-card-border-width: var(--bs-border-width);
+        --bs-card-border-color: var(--bs-border-color-translucent);
+        --bs-card-border-radius: var(--bs-border-radius);
+        --bs-card-box-shadow: ;
+        --bs-card-inner-border-radius: calc(var(--bs-border-radius) - (var(--bs-border-width)));
+        --bs-card-cap-padding-y: 0.5rem;
+        --bs-card-cap-padding-x: 1rem;
+        --bs-card-cap-bg: rgba(var(--bs-body-color-rgb), 0.03);
+        --bs-card-cap-color: ;
+        --bs-card-height: ;
+        --bs-card-color: ;
+        --bs-card-bg: var(--bs-body-bg);
+        --bs-card-img-overlay-padding: 1rem;
+        --bs-card-group-margin: 0.75rem;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        height: var(--bs-card-height);
+        word-wrap: break-word;
+        background-color: var(--bs-card-bg);
+        background-clip: border-box;
+        border: var(--bs-card-border-width) solid var(--bs-card-border-color);
+        border-radius: var(--bs-card-border-radius);
+    }

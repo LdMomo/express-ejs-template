@@ -1,0 +1,23 @@
+
+
+<a href="#" class="list-group-item list-group-item-action"  id="dept_<%= deptlist.id %>" style="display: none !important;">
+  <div class="d-flex w-100 justify-content-between">
+      <b class="mb-1 ucwords"><%= deptlist.deptname %></b> 
+   </div>
+  <span>
+    <b id="groupOptions<%= deptlist.id %>"   style="background-color:<%= deptlist.deptcolor %> ;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>
+    
+
+    
+
+    <span   data-toggle="tooltip" title="Units with in the department"> <span class="fa fa-home"></span> <b class="text-info top_deptTotal_<%= deptlist.subcategoryid %>">0</b></span>
+
+    <span   data-toggle="tooltip" title="Units with in the group"> <span class="fa fa-list"></span> <b class="text-success top_groupTotal_<%= deptlist.id %>">0</b></span>
+   <span   data-toggle="tooltip" title="Active on map"> <span class="fa fa-map"></span> <b class="text-danger activeCnt_<%= deptlist.id %>">0</b></span>
+
+   <span   data-toggle="tooltip" title="Issued to officer"> <span class="fa fa-user"></span> <b class="text-success top_unitsIssued_<%= deptlist.id %>">0</b></span>
+   <span   data-toggle="tooltip" title="In current map view"> <span class="fa fa-map-marker"></span> <b class="text-warning inMapViewCnt inMapViewCnt_<%= deptlist.id %>">0</b></span>
+  </span>
+</a>
+
+ 

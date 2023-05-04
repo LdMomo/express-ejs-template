@@ -1,0 +1,28 @@
+<div id="map1" class="map-container"></div>
+
+<script>
+   
+
+
+
+  iniMap.maptalkMap1('map1', 73.13955, 3.16678, 7.1630281519812415);
+      //  map1.on('load loaded  moveend zoomend  dragrotatestart dragrotateend', getMap1Status);
+       map1.on('load loaded moving moveend zoomend pitchend dragrotatestart dragrotateend', getMap1Status);
+
+
+       map1.on('dragrotateend zoomend moveend', function (param) {
+                
+                if($('._searchR').hasClass( "btn-warning" )==true){
+                    $("button._searchR.btn-warning").addClass('btn-success')
+                    $("button._searchR.btn-warning").removeClass('btn-warning')
+                    $("button._searchR.btn-warning").removeClass('btn-info')
+                
+                }
+                if($('._searchR').hasClass( "btn-success" )==true){
+                    $("button._searchR.btn-success").prop( "disabled", false );
+                }
+               
+         });
+
+
+</script>

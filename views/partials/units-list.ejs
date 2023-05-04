@@ -1,0 +1,73 @@
+
+
+<% for(var i=0; i<data.length; i++) {%>
+
+ 
+      
+       
+          <div class="units_card top_units top_unit_<%= data[i].unitno %> top_unit_<%= data[i].subcategoryid %>_<%= data[i].deptid %>" style=" border-radius: 15px; display: none !important;">
+            <div class="card-boxdy p-4">
+              <div >
+                <h5 class="mb-1 ucwords" ><%= data[i].deptname %></h5>
+              </div>
+           
+              <div class="d-flex ">
+                <% if(data[i].serviceno){ %>
+                <div class="flex-shrink-0">
+                  
+
+
+                 
+                    <img id="img_<%= data[i].serviceno %>" src="assets/css/images/POLICE.png"
+                    alt="Generic placeholder image" class="img-fluid"
+                    style="width: 60px; border-radius: 10px;">
+                
+                   <script>
+                     $(document).ready(function() {
+                   //   var imgs=server_Police.getEmpImage(<%= data[i].serviceno %>, <%= data[i].unitno %>);
+                 //   $('#img_<%= data[i].serviceno %>').attr("src",imgs);
+                  });
+                    </script>
+
+
+                
+                </div>
+                <div class=" ms-3" style="font-size: small !important;">
+                  <h5><%= data[i].unitno %></h5>
+                  <div ><span class="text-muted">Name:</span> <%= data[i].empname %> (<%= data[i].serviceno %>)</div>
+                  <div ><span class="text-muted">Assigned:</span> <%= data[i].assign_date %></div>
+                  <div ><span class="text-muted">Time:</span>  <%= data[i].time %></div>
+                </div>
+                <% }else{ %>  
+                <div  style="font-size:  small !important;">
+                  <h5><%= data[i].unitno %></h5>
+                  <div ><span class="text-muted">Time:</span>  <%= data[i].time %></div>
+                </div>
+                <% }%>  
+              </div>
+            </div>
+          </div>
+    
+    
+ 
+
+
+       
+  <div style="display: none !important;" class="top_unitsx d-flex text-muted pt-3 ">
+      <svg class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32"
+          xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 32x32"
+          preserveAspectRatio="xMidYMid slice" focusable="false">
+          <title>Placeholder</title>
+          <rect width="100%" height="100%" fill="#e83e8c"></rect><text x="50%" y="50%" fill="#e83e8c"
+              dy=".3em">32x32</text>
+      </svg>
+      <p class="pb-
+       mb-0 small lh-sm border-bottom ">
+       <strong class="d-block text-gray-dark"><%= data[i].unitno %></strong> 
+     
+        Last Active On: <%= data[i].time %>  <br> Issued To:   <span class="ucwords"><%= data[i].deptname %></span>
+     <br>
+     Last Known Location:  <%= data[i].last_known_lon %>, <%= data[i].last_known_lat %>
+      </p>
+   </div>
+<% } %>
