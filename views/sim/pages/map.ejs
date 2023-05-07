@@ -1,0 +1,259 @@
+<style type="text/css">
+ 
+
+    .map-container {
+        width: 100%;
+        height: 100%
+    }
+</style>
+
+<div id="map" class="map-container"></div>
+<div id="info" style="display: none;"></div>
+<div id="map1-info"  style="display: none;"></div>
+<script>
+
+var map1_center=[];
+    var map1_extend, map1_zoom;
+
+
+
+    var map = new maptalks.Map('map', {
+        center: [73.5107, 4.17526],
+        zoom: 16,
+        pitch: 0,
+        attribution: true,
+        zoomControl: true, // add zoom control
+        scaleControl: true, // add scale control
+        overviewControl: false, // add overview control
+        baseLayer: new maptalks.TileLayer('base', {
+            urlTemplate: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+            subdomains: ["a", "b", "c", "d"],
+            attribution: '&copy; <a href="http://osm.org">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/">CARTO</a>'
+        })
+    });
+    getMap1Status()
+    map.on('click', function (param) {
+        var infoDom = document.getElementById('info');
+        infoDom.innerHTML = '<div>' + new Date().toLocaleTimeString() +
+            ': click map on ' + param.coordinate.toFixed(5).toArray().join() + '</div>';
+    });
+
+
+
+    var layer = new maptalks.VectorLayer('vector').addTo(map);
+
+    var iconLayer = new maptalks.VectorLayer('Icons').addTo(map);
+
+    var drawTool = new maptalks.DrawTool({
+        mode: 'Point'
+    }).addTo(map).disable();
+    var shapeCnt = 1;
+    var geoItems = [];
+    drawTool.on('drawend', function (param) {
+        geoItems.push(param.geometry);
+        console.log(param.geometry);
+        layer.addGeometry(param.geometry);
+        drawTool.disable();
+     
+
+    });
+    //, 'FreeHandLineString', 'FreeHandPolygon'
+    var items = ['Point', 'LineString', 'Polygon', 'Circle', 'Ellipse', 'Rectangle'].map(function (value) {
+        return {
+            item: value,
+            click: function () {
+                drawTool.setMode(value).enable();
+            }
+        };
+    });
+
+    map.on('click', function (e) {
+
+        //reset colors
+        layer.forEach(function (g) {
+            g.updateSymbol({
+                'markerFill': '#0e595e',
+                'lineColor': '#0e595e',
+                'polygonFill': '#0e595e',
+                'polygonOpacity': 0.6
+            });
+            g.endEdit();
+        });
+        //identify
+        map.identify({
+                'coordinate': e.coordinate,
+                'layers': [layer]
+            },
+            function (geos) {
+                if (geos.length === 0) {
+                    return;
+                }
+                geos.forEach(function (g) {
+                    g.updateSymbol({
+                        'markerFill': '#f00',
+                        'lineColor': '#f00',
+                        'polygonFill': '#f00',
+                        'polygonOpacity': 0.6
+                    });
+                    console.log(g)
+                    g.startEdit();
+
+
+                    var   img='';
+
+img=img+'<div class="accordion-item">'
+img=img+'<h2 class="accordion-header" id="headingOne'+shapeCnt+'">'
+img=img+'<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo'+shapeCnt+'" aria-expanded="false" aria-controls="collapseTwo'+shapeCnt+'">'
+img=img+''+g.type+' / '+g._jsonType+'</button></h2>'
+img=img+'<div id="collapseTwo'+shapeCnt+'" class="accordion-collapse collapse " aria-labelledby="headingOne'+shapeCnt+'" data-bs-parent="#map-obj-prop">'
+img=img+'<div class="accordion-body">'
+img=img+'<a class="float-right btn  btn-outline-danger btn-sm"><span class="fa fa-trash"></span></a>'
+img=img+'asdasdasd'
+img=img+'</div> </div> </div>'
+$('#map-obj-prop').html(img)
+
+
+                });
+
+            }
+        );
+    });
+
+    var toolbar = new maptalks.control.Toolbar({
+        items: [{
+                item: 'Shape',
+                children: items
+            },
+
+            {
+                item: 'Clear',
+                click: function () {
+                    layer.clear();
+                    iconLayer.clear();
+                    $('#map-obj-prop').html('')
+                }
+            }
+        ]
+    }).addTo(map);
+
+
+
+    map.on('moving moveend', function (e) {
+        getMap1Status()
+    });
+
+    map.on('zooming zoomend', function (e) {
+        getMap1Status()
+    });
+
+    map.on('pitch', function (e) {
+        getMap1Status()
+    });
+
+    map.on('rotate', function (e) {
+        getMap1Status()
+    });
+
+
+
+
+    function getMap1Status() {
+
+
+        var extent = map.getExtent(),
+            ex = [
+                '{',
+                'xmin:' + extent.xmin.toFixed(5),
+                ', ymin:' + extent.ymin.toFixed(5),
+                ', xmax:' + extent.xmax.toFixed(5),
+                ', ymax:' + extent.xmax.toFixed(5),
+                '}'
+            ].join('');
+        map
+        var center = map.getCenter();
+        map1_center = [center.x.toFixed(5), center.y.toFixed(5)].join();
+        map1_extend = ex;
+        map1_zoom = map.getZoom();
+        var mapStatus = [
+            'Name : <b>map1</b>',
+            'Center : [' + map1_center + ']',
+            'Extent : ' + ex,
+            'Size : ' + map.getSize().toArray().join(),
+            'Zoom : ' + map1_zoom,
+            'MinZoom : ' + map.getMinZoom(),
+            'MaxZoom : ' + map.getMaxZoom(),
+            'Pitch : ' + map.getPitch().toFixed(5),
+            'Bearing : ' + map.getBearing().toFixed(5),
+            'Projection : ' + map.getProjection().code
+        ];
+        // var mapJSON = map1.toJSON();
+        //document.getElementById('map1-json').innerHTML = JSON.stringify(mapJSON);
+        document.getElementById('map1-info').innerHTML = '<div>' + mapStatus.join('<br>') + '</div>';
+
+    }
+    var icon_cnt=1;
+    var iconSet=[];
+    function addIcon(iconname) {
+
+        var center = map.getCenter();
+ 
+       
+        iconSet[icon_cnt]= new maptalks.Marker(
+           [center.x.toFixed(5), center.y.toFixed(5)], {
+                'draggable' : true,
+                'properties' : {
+            'name' : 'marker- '+icon_cnt,
+            'imageName' : iconname
+          },
+                'symbol': [{
+                    'markerFile': 'assets/sim-icons/' + iconname,
+                    'markerWidth': 28,
+                    'markerHeight': 28,
+                    'markerDx': 0,
+                    'markerDy': 0,
+                    'markerOpacity': 0.8
+                },
+            {
+              'textFaceName' : 'sans-serif',
+              'textName' : '{name}',
+              'textSize' : 14,
+              'textDy'   : 24
+            }]
+            }
+        ).addTo(iconLayer);
+ 
+        iconSet[icon_cnt].on('click', function (e) {
+            generateMapMarkerjProp(this)
+    });
+
+        icon_cnt++;
+        
+    }
+
+    function generateMapMarkerjProp(g){
+
+var i=0;
+var img='';
+       
+            console.log(g)
+
+
+img=img+'<div class="accordion-item">'
+img=img+'<h2 class="accordion-header" id="headingOne'+i+'">'
+img=img+'<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo'+i+'" aria-expanded="false" aria-controls="collapseTwo'+i+'">'
+img=img+'<img style="height:26px;" src="assets/sim-icons/'+g.properties.imageName+'" >&nbsp;&nbsp;'+g.properties.name+'</button></h2>'
+img=img+'<div id="collapseTwo'+i+'" class="accordion-collapse collapse " aria-labelledby="headingOne'+i+'" data-bs-parent="#map-obj-prop">'
+img=img+'<div class="accordion-body">'
+img=img+'<a class="float-right btn  btn-outline-danger btn-sm"><span class="fa fa-trash"></span></a>'
+img=img+'asdasdasd'
+img=img+'</div> </div> </div>'
+
+
+         
+ i++
+        
+
+                $('#map-obj-prop').html(img)
+      
+    }
+</script>

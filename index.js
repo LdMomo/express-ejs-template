@@ -3,6 +3,7 @@
 
 
 const express = require('express') ;
+const http = require("http");
 var bodyParser = require('body-parser')
 const app = express();
  
@@ -132,13 +133,20 @@ app.get("/deptList", function(req, res){
     res.render("partials/depts-list.ejs", {flyViews: mapFlyViews})
 });
 
+var iconSet=['stop.png','traffic-cone.png','shop.png','hospital.png','stop.png','traffic-cone.png','shop.png','hospital.png','stop.png','traffic-cone.png','shop.png','hospital.png','stop.png','traffic-cone.png','shop.png','hospital.png'];
 
-
-app.get("/dashboard", function(req, res){
+//Simulator
+app.get("/sim", function(req, res){
    
-    res.render("partials/dashboard.ejs", {flyViews: mapFlyViews})
+    res.render("sim/index.ejs",  {iconSet:iconSet,myip: req.socket.remoteAddress})
 });
 
+
+
+app.get("/deptListLayout", function(req, res){
+   
+    res.render("partials/depts-list-layout.ejs", {flyViews: mapFlyViews})
+});
 
 app.listen(3001, () => {
     console.log('App listening on port 3001');
