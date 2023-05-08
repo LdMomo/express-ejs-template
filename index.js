@@ -133,7 +133,7 @@ app.get("/deptList", function(req, res){
     res.render("partials/depts-list.ejs", {flyViews: mapFlyViews})
 });
 
-var iconSet=['stop.png','traffic-cone.png','shop.png','hospital.png','stop.png','traffic-cone.png','shop.png','hospital.png','stop.png','traffic-cone.png','shop.png','hospital.png','stop.png','traffic-cone.png','shop.png','hospital.png'];
+var iconSet=['stop.png','traffic-cone.png','stop.png','traffic-cone.png','stop.png','traffic-cone.png','stop.png','traffic-cone.png','stop.png','traffic-cone.png','stop.png','traffic-cone.png','shop.png','hospital.png','stop.png','traffic-cone.png','shop.png','hospital.png','stop.png','traffic-cone.png','shop.png','hospital.png','stop.png','traffic-cone.png','shop.png','hospital.png'];
 
 //Simulator
 app.get("/sim", function(req, res){

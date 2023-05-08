@@ -1,23 +1,28 @@
 <style type="text/css">
- 
-
     .map-container {
         width: 100%;
-        height: 100%
+        height: 70vh
     }
 </style>
 
-<div id="map" class="map-container"></div>
-<div id="info" style="display: none;"></div>
-<div id="map1-info"  style="display: none;"></div>
+<div class="card">
+    <div class="card-header">
+        Map
+    </div>
+    <div class="card-body">
+        <div id="map" class="map-container"></div>
+        <div id="info" style="display: none;"></div>
+        <div id="map1-info" style="display: none;"></div>
+    </div>
+</div>
 <script>
+    
 
-var map1_center=[];
-    var map1_extend, map1_zoom;
+       
+    var geoItems = [];
+    var geoItemsOptions = [];
 
-
-
-    var map = new maptalks.Map('map', {
+      map = new maptalks.Map('map', {
         center: [73.5107, 4.17526],
         zoom: 16,
         pitch: 0,
@@ -40,25 +45,58 @@ var map1_center=[];
 
 
 
-    var layer = new maptalks.VectorLayer('vector').addTo(map);
+    var layer = new maptalks.VectorLayer('vector',{
+        enableAltitude : true,
+        // draw altitude
+        drawAltitude : {
+          lineWidth : 1,
+          lineColor : '#000'
+        }}).addTo(map);
 
-    var iconLayer = new maptalks.VectorLayer('Icons').addTo(map);
+    var iconLayer = new maptalks.VectorLayer('Icons',{
+        enableAltitude : true,
+        // draw altitude
+        drawAltitude : {
+          lineWidth : 1,
+          lineColor : '#000'
+        }}).addTo(map);
 
     var drawTool = new maptalks.DrawTool({
         mode: 'Point'
     }).addTo(map).disable();
-    var shapeCnt = 1;
-    var geoItems = [];
+
     drawTool.on('drawend', function (param) {
-        geoItems.push(param.geometry);
         console.log(param.geometry);
+        param.geometry['properties']=[]
+        param.geometry['properties']['suqid']=mapObjectCnt;
+        geoItems.push(param.geometry);
+       
+        var options = {
+        'title'     : 'Map Custom Object '+mapObjectCnt,
+        'content'   : 'Custom text'
+
+        // 'autoPan': true,
+        // 'width': 300,
+        // 'minHeight': 120,
+        // 'custom': false,
+        //'autoOpenOn' : 'click',  //set to null if not to open window when clicking on map
+        //'autoCloseOn' : 'click'
+      };
+      drawTool.disable();
+      geoItemsOptions.push(options);
+      var infoWindow = new maptalks.ui.InfoWindow(options);
+      infoWindow.addTo(param.geometry).show();
+
+
+
+        
         layer.addGeometry(param.geometry);
-        drawTool.disable();
-     
+       
+        mapObjectCnt++;
 
     });
     //, 'FreeHandLineString', 'FreeHandPolygon'
-    var items = ['Point', 'LineString', 'Polygon', 'Circle', 'Ellipse', 'Rectangle'].map(function (value) {
+    var items = ['Point', 'LineString', 'Polygon', 'Circle', 'Ellipse', 'Rectangle','ArcCurve','QuadBezierCurve','CubicBezierCurve'].map(function (value) {
         return {
             item: value,
             click: function () {
@@ -71,12 +109,11 @@ var map1_center=[];
 
         //reset colors
         layer.forEach(function (g) {
-            g.updateSymbol({
-                'markerFill': '#0e595e',
-                'lineColor': '#0e595e',
-                'polygonFill': '#0e595e',
-                'polygonOpacity': 0.6
-            });
+            selectedMapObject=g;
+            console.log(g)
+           
+            
+       
             g.endEdit();
         });
         //identify
@@ -89,28 +126,15 @@ var map1_center=[];
                     return;
                 }
                 geos.forEach(function (g) {
-                    g.updateSymbol({
-                        'markerFill': '#f00',
-                        'lineColor': '#f00',
-                        'polygonFill': '#f00',
-                        'polygonOpacity': 0.6
-                    });
-                    console.log(g)
+                   
+                  
+
+
+
+                    $('#objectId').val(g.properties.suqid); 
+                    $('#objectType').val(g.type + ' / ' + g._jsonType); 
+
                     g.startEdit();
-
-
-                    var   img='';
-
-img=img+'<div class="accordion-item">'
-img=img+'<h2 class="accordion-header" id="headingOne'+shapeCnt+'">'
-img=img+'<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo'+shapeCnt+'" aria-expanded="false" aria-controls="collapseTwo'+shapeCnt+'">'
-img=img+''+g.type+' / '+g._jsonType+'</button></h2>'
-img=img+'<div id="collapseTwo'+shapeCnt+'" class="accordion-collapse collapse " aria-labelledby="headingOne'+shapeCnt+'" data-bs-parent="#map-obj-prop">'
-img=img+'<div class="accordion-body">'
-img=img+'<a class="float-right btn  btn-outline-danger btn-sm"><span class="fa fa-trash"></span></a>'
-img=img+'asdasdasd'
-img=img+'</div> </div> </div>'
-$('#map-obj-prop').html(img)
 
 
                 });
@@ -124,7 +148,12 @@ $('#map-obj-prop').html(img)
                 item: 'Shape',
                 children: items
             },
-
+            {
+                item: 'End Draw',
+                click: function () {
+                    drawTool.disable();
+                }
+            },
             {
                 item: 'Clear',
                 click: function () {
@@ -191,69 +220,85 @@ $('#map-obj-prop').html(img)
         document.getElementById('map1-info').innerHTML = '<div>' + mapStatus.join('<br>') + '</div>';
 
     }
-    var icon_cnt=1;
-    var iconSet=[];
+   
+
+
+    
+
     function addIcon(iconname) {
 
         var center = map.getCenter();
- 
-       
-        iconSet[icon_cnt]= new maptalks.Marker(
-           [center.x.toFixed(5), center.y.toFixed(5)], {
-                'draggable' : true,
-                'properties' : {
-            'name' : 'marker- '+icon_cnt,
-            'imageName' : iconname
-          },
-                'symbol': [{
-                    'markerFile': 'assets/sim-icons/' + iconname,
-                    'markerWidth': 28,
-                    'markerHeight': 28,
-                    'markerDx': 0,
-                    'markerDy': 0,
-                    'markerOpacity': 0.8
+
+
+        geoItems[mapObjectCnt-1] = new maptalks.Marker(
+            [center.x.toFixed(5), center.y.toFixed(5)], {
+                'draggable': true,
+                dragShadow : false, // display a shadow during dragging
+            
+                'properties': {
+                    'name': 'Marker- ' + mapObjectCnt,
+                    'suqid': mapObjectCnt,
+                    'imageName': iconname,
+                    altitude :0,
                 },
-            {
-              'textFaceName' : 'sans-serif',
-              'textName' : '{name}',
-              'textSize' : 14,
-              'textDy'   : 24
-            }]
+                'symbol': [
+                    {
+                        
+                        'markerDx': 0,
+                        'markerDy': 0,
+                        'markerOpacity': 0.8
+                    },
+                    {
+                        'markerFile': 'assets/sim-icons/' + iconname,
+                        'markerWidth': 29,
+                        'markerHeight': 29,
+                        'markerDy': -20
+                    },
+                    {
+                        'markerFile': 'assets/css/images/marker.png',
+                       
+                    },
+                    {
+                        'textFaceName': 'sans-serif',
+                        'textName': '{name}',
+                        'textSize': 14,
+                        'textDy': 24
+                    }
+                ]
             }
         ).addTo(iconLayer);
- 
-        iconSet[icon_cnt].on('click', function (e) {
+
+        geoItems[mapObjectCnt-1].on('click', function (e) {
             generateMapMarkerjProp(this)
-    });
+        });
 
-        icon_cnt++;
-        
+        mapObjectCnt++;
+
     }
 
-    function generateMapMarkerjProp(g){
-
-var i=0;
-var img='';
-       
-            console.log(g)
-
-
-img=img+'<div class="accordion-item">'
-img=img+'<h2 class="accordion-header" id="headingOne'+i+'">'
-img=img+'<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo'+i+'" aria-expanded="false" aria-controls="collapseTwo'+i+'">'
-img=img+'<img style="height:26px;" src="assets/sim-icons/'+g.properties.imageName+'" >&nbsp;&nbsp;'+g.properties.name+'</button></h2>'
-img=img+'<div id="collapseTwo'+i+'" class="accordion-collapse collapse " aria-labelledby="headingOne'+i+'" data-bs-parent="#map-obj-prop">'
-img=img+'<div class="accordion-body">'
-img=img+'<a class="float-right btn  btn-outline-danger btn-sm"><span class="fa fa-trash"></span></a>'
-img=img+'asdasdasd'
-img=img+'</div> </div> </div>'
-
-
-         
- i++
-        
-
-                $('#map-obj-prop').html(img)
+    function generateMapMarkerjProp(g) {
       
+
+        console.log(g)
+
+
+     
+        console.log( g.properties.suqid)
+        $('#objectId').val(g.properties.suqid); 
+        $('#objectType').val(g.type); 
+   
+     
+        
+  
+
     }
+
+
+    $( "#colorCode" ).on( "change", function() {
+         var  oldSymbole=   selectedMapObject.getSymbol();
+
+         console.log(oldSymbole)
+
+} );
+
 </script>
