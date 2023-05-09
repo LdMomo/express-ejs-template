@@ -1,24 +1,18 @@
 <style>
    .inputColor{
         background-color: #fff;
-        padding: 10px;
+        padding: 2px;
         width: 50px;
-        height: 30px;
+        height: 34px;
         cursor: pointer;
-        border: 2px solid #000;
+        border: 2px solid #cccccc;
         border-radius: 3px;
-        margin: 20px;
+        margin-top: 4px;
+        margin: 4px;
     }
 
    
-
-    code {
-        font-size: 1.2rem;
-        background-color: lightslategray;
-        color: #fff;
-        border-radius: 3px;
-        padding: 5px;
-    }
+ 
 </style>
 
 
@@ -31,47 +25,39 @@
 
    
           
-        <form>
-            <div class="form-group row">
-                <label for="objectId" class="col-sm-3 col-form-label">Image</label>
-                <div class="col-sm-9">
-                    <img style="height:26px;" src="assets/css/images/marker.png"   id="objectImage" >
-                </div>
-            </div>
+        <form id="gen-objects">
             
-
-
 
             <div class="form-group row">
                 <label for="objectId" class="col-sm-3 col-form-label">ID</label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control form-control-sm" id="objectId" placeholder="Object ID">
+                    <input type="text" class="form-control form-control-sm" id="objectId" name="objectId" placeholder="Object ID">
                 </div>
             </div>
             <div class="form-group row">
                 <label for="objectType" class="col-sm-3 col-form-label">Type</label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control form-control-sm" id="objectType" placeholder="Object Type">
+                    <input type="text" class="form-control form-control-sm" id="objectType" name="objectType" placeholder="Object Type">
                 </div>
             </div>
             <div class="form-group row">
-                <label for="inputPassword" class="col-sm-3 col-form-label">Title</label>
+                <label for="objectTitle" class="col-sm-3 col-form-label">Title</label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control form-control-sm" id="inputPassword" placeholder="Title">
+                    <input type="text" class="form-control form-control-sm" id="objectTitle" name="objectTitle" placeholder="Title">
                 </div>
             </div>
             <div class="form-group row">
                 <label for="inputPassword" class="col-sm-3 col-form-label">Content</label>
                 <div class="col-sm-9">
-                    <textarea type="text"  rows="3" class="form-control form-control-sm" id="inputPassword" placeholder="Content"></textarea>
+                    <textarea type="text"  rows="3" class="form-control form-control-sm" id="objectContent" name="objectContent"  placeholder="Content"></textarea>
                 </div>
             </div>
 
             <div class="form-group row">
-                <label for="inputPassword" class="col-sm-3 col-form-label">Hight</label>
-                <div class="col-sm-5">
-                    <select class="form-control select2" id="objectFloor">
-                        <option>Select Floor</option> 
+                <label for="objectFloor" class="col-sm-3 col-form-label">Hight</label>
+                <div class="col-sm-9">
+                    <select class="form-control select2" id="objectFloor"name="objectFloor" >
+                        <option value="0">Select Floor</option> 
                         <option value="1">1</option> 
                         <option value="2">2</option> 
                         <option value="3">3</option> 
@@ -99,15 +85,13 @@
                         <option value="25">25</option> 
                      </select>                
                     </div>
-                    <div class="col-sm-4">
-                        <input type="text" class="form-control form-control-sm" id="hightInFeet" placeholder="Feet">
-                    </div>
+                    
             </div>
             <div class="form-group row">
                 <label for="inputPassword" class="col-sm-3 col-form-label"></label>
                 <div class="col-sm-9">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="groundUpFloor">
+                        <input class="form-check-input" type="checkbox" value="" name="groundUpFloor">
                         <label class="form-check-label" for="groundUpFloor">
                           This is a 3D object
                         </label>
@@ -118,33 +102,15 @@
                 <label for="inputPassword" class="col-sm-3 col-form-label">Color</label>
                 <div class="col-sm-9">
                     <!-- Easy and useful color picker -->
-                    <input type="color" value="#000000" id="colorPicker" class="inputColor">
-                    <code id="colorCode"></code></b>
-                </div>
+                    <input type="color" value="#000000" id="objectColor"name="objectColor" class="inputColor">
+                 </div>
             </div>
-            <div class="form-group row">
-                <label for="inputPassword" class="col-sm-3 col-form-label"></label>
-                <div class="col-sm-9">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="autoColorSet">
-                        <label class="form-check-label" for="autoColorSet">
-                          Auto apply to borer color
-                        </label>
-                      </div>
-                </div>
-            </div>
-            <div class="form-group row">
-                <label for="inputPassword" class="col-sm-3 col-form-label">Border </label>
-                <div class="col-sm-9">
-                    <!-- Easy and useful color picker -->
-                    <input type="color" value="#000000" id="colorPickerBorder"  class="inputColor">
-                    <code id="colorCodeBorder"></code></b>
-                </div>
-            </div>
+           
+          
      
             <div class="form-group row">
                 <div class="col-sm-12">
-                    <button type="button" onclick="SaveBrn();" class="btn btn-success">Save</button>
+                    <button type="button"  onclick="rd.getFormValues('gen-objects');" class="btn btn-success">Save</button>
                 </div>
             </div>
         </form>
@@ -152,250 +118,4 @@
     </div>
 </div>
 
-<script>
-     const input = document.getElementById("colorPicker");
-    const inputBorder = document.getElementById("colorPickerBorder");
-    const colorCode = document.getElementById("colorCode");
-    const colorCodeBorder= document.getElementById("colorCodeBorder");
-    setColor();
-    input.addEventListener("input", setColor);
-
-    function setColor() {
-        colorCode.style.backgroundColor = input.value;
-        colorCode.innerHTML = input.value;
-        if(document.getElementById('autoColorSet').checked) {
-            colorCodeBorder.style.backgroundColor = input.value;
-        colorCodeBorder.innerHTML = input.value;
-
-        }else{
-
-            colorCodeBorder.style.backgroundColor = inputBorder.value;
-        colorCodeBorder.innerHTML = inputBorder.value;
-        }
-        
-
-        
-
-        if(typeof selectedMapObject!=='undefined'){
-          
-       
-            geoItems[$('#objectId').val()-1].updateSymbol({
-                userEdit:true,
-                'polygonFill': colorCode.innerHTML,
-                'lineColor': colorCodeBorder.innerHTML,
-                'polygonOpacity': 0.6
-            });
-        }
-        
-
-    }
-    
-    $('.select2').select2();
  
-
-    
-function calculateAltitudeInMeters(floors) {
-  const FEET_PER_FLOOR = 10;
-  const METERS_PER_FOOT = 0.3048;
-  const altitudeInFeet = floors * FEET_PER_FLOOR;
-  const altitudeInMeters = altitudeInFeet * METERS_PER_FOOT;
-  return altitudeInMeters;
-}
-render3D.generateBuildings([{
-    "type": "Feature",
-    "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-            [
-                [
-                    73.544715724,
-                    4.223530882
-                ],
-                [
-                    73.544710656,
-                    4.223512772
-                ],
-                [
-                    73.544726996,
-                    4.223508164
-                ],
-                [
-                    73.544732064,
-                    4.223526274
-                ],
-                [
-                    73.544881318,
-                    4.223484171
-                ],
-                [
-                    73.544874935,
-                    4.22346136
-                ],
-                [
-                    73.544887166,
-                    4.22345791
-                ],
-                [
-                    73.54489355,
-                    4.223480721
-                ],
-                [
-                    73.544913756,
-                    4.223475021
-                ],
-                [
-                    73.544911721,
-                    4.223467751
-                ],
-                [
-                    73.544922129,
-                    4.223464815
-                ],
-                [
-                    73.544924163,
-                    4.223472086
-                ],
-                [
-                    73.544954255,
-                    4.223463597
-                ],
-                [
-                    73.544883976,
-                    4.223212468
-                ],
-                [
-                    73.544859823,
-                    4.223219281
-                ],
-                [
-                    73.544851685,
-                    4.2231902
-                ],
-                [
-                    73.544580632,
-                    4.223266659
-                ],
-                [
-                    73.544588139,
-                    4.223293488
-                ],
-                [
-                    73.544608702,
-                    4.223366965
-                ],
-                [
-                    73.544638795,
-                    4.223358476
-                ],
-                [
-                    73.54463676,
-                    4.223351202
-                ],
-                [
-                    73.544648034,
-                    4.223348023
-                ],
-                [
-                    73.544642953,
-                    4.223329869
-                ],
-                [
-                    73.544721399,
-                    4.223307741
-                ],
-                [
-                    73.544729002,
-                    4.223334907
-                ],
-                [
-                    73.544829724,
-                    4.223306495
-                ],
-                [
-                    73.544841329,
-                    4.223347966
-                ],
-                [
-                    73.544620794,
-                    4.223410175
-                ],
-                [
-                    73.544629238,
-                    4.223440346
-                ],
-                [
-                    73.544635874,
-                    4.223438474
-                ],
-                [
-                    73.544638797,
-                    4.223448922
-                ],
-                [
-                    73.544632162,
-                    4.223450794
-                ],
-                [
-                    73.54463785,
-                    4.223471121
-                ],
-                [
-                    73.544666816,
-                    4.223462951
-                ],
-                [
-                    73.544674896,
-                    4.223491822
-                ],
-                [
-                    73.544657509,
-                    4.223496726
-                ],
-                [
-                    73.544670628,
-                    4.223543603
-                ],
-                [
-                    73.544715724,
-                    4.223530882
-                ]
-            ]
-        ]
-    },
-    "properties": {
-        "NAME": "45",
-        "Test": "hello",
-        "Test1": "hello"
-    },
-    "object_properties": {
-        "Geometry table": {
-            "object_id": "bob0",
-            "type": "hulhumale",
-            "state": "1",
-            "addedon": "2023-01-14T15:51:22.061273+05:00",
-            "addedby": null,
-            "parent": null
-        },
-        "attribute added on": {
-            "NAME": null,
-            "Test": null,
-            "Test1": "ddd"
-        },
-        "attribute added by": {
-            "NAME": null,
-            "Test": null,
-            "Test1": "ddd"
-        }
-    }
-}])
-
-function SaveBrn(){
-
-    
-   var floor= calculateAltitudeInMeters(document.getElementById('objectFloor').value)
-   console.log( $('#objectId').val()-1)
-   geoItems[$('#objectId').val()-1].properties.altitude=floor;
-   console.log(  geoItems[$('#objectId').val()-1].getAltitude())
-
- }
-</script>

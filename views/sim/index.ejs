@@ -28,19 +28,20 @@
     var map1_center = [];
 var map1_extend, map1_zoom;
 var selectedMapObject;
-var mapObjectCnt = 1;
+
+var mapObjectCnt = 0;
 var iconSet = [];
 
+var geoItems = [];
+var geoItemsRange = [];
+    var geoItemsOptions = [];
 </script>
 
-<script type="text/javascript" src="assets/maptalks/dat.gui.min.js"></script>
-<script type="text/javascript" src="assets/maptalks/maptalks.min.js"></script>
-<script type="text/javascript" src="assets/maptalks/maptalksgl.js"></script>
-<script type="text/javascript" src="assets/maptalks/three.min.js"></script>
-<script type="text/javascript" src="assets/maptalks/stats.min.js"></script>
-<script type="text/javascript" src="assets/maptalks/maptalks.three.js"></script>
 
-<script src="assets/js/global-3d.js"></script>
+<script type="text/javascript" src="assets/maptalks/maptalks.min.js"></script>
+ 
+
+
 
     <style>
            html,
@@ -255,5 +256,27 @@ var iconSet = [];
     <script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>
 
    
+    <script>
+ 
+// Get all elements with the class "my-input"
+const inputs = document.querySelectorAll('.inputColor');
+
+// Loop through each input element and add an event listener
+inputs.forEach(input => {
+  input.addEventListener('input', () => {
+    // This function will be called whenever the input value changes
+
+  
+
+    // Add your desired actions here
+  });
+});
+ 
+    
+    
+   
+    </script>
+
+
    </body>
 </html>
