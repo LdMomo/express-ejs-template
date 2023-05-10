@@ -16,12 +16,7 @@
     </div>
 </div>
 <script>
-    
-
-       
-
-
-      map = new maptalks.Map('map', {
+    map = new maptalks.Map('map', {
         center: [73.5107, 4.17526],
         zoom: 16,
         pitch: 0,
@@ -45,25 +40,21 @@
 
 
 
-    var layer = new maptalks.VectorLayer('Markers',{
-        enableAltitude : true,
-        // draw altitude
-        drawAltitude : {
-          lineWidth : 1,
-          lineColor : '#000',
-          polygonFill : '#1bbc9b',
-        polygonOpacity : 0.3,
-        }}).addTo(map);
 
-    var iconLayer = new maptalks.VectorLayer('Icons',{
-        enableAltitude : true,
+    var layer = new maptalks.VectorLayer('Map Objects', {
+        enableAltitude: true,
         // draw altitude
-        drawAltitude : {
-          lineWidth : 1,
-          lineColor : '#000',
-          polygonFill : '#1bbc9b',
-        polygonOpacity : 0.3,
-        }}).addTo(map);
+        drawAltitude: {
+            lineWidth: 1,
+            lineColor: '#000',
+            polygonFill: '#1bbc9b',
+            polygonOpacity: 0.3,
+        }
+    }).addTo(map);
+
+
+
+
 
     var drawTool = new maptalks.DrawTool({
         mode: 'Point'
@@ -71,20 +62,24 @@
 
     drawTool.on('drawend', function (param) {
         console.log(param.geometry);
-        param.geometry['properties']=[]
-        param.geometry['properties']['suqid']='object_'+mapObjectCnt;
-        geoItems['object_'+mapObjectCnt]=param.geometry;
-         drawTool.disable();
-       
+        param.geometry['properties'] = []
+        param.geometry['properties']['suqid'] = 'object_' + mapObjectCnt;
+        param.geometry['properties']['jsonType'] = param.geometry._jsonType;
+        param.geometry['properties']['objectType'] = param.geometry.type;
+        geoItems['object_' + mapObjectCnt] = param.geometry;
+        drawTool.disable();
 
-        
+
+
         layer.addGeometry(param.geometry);
-       
+
         mapObjectCnt++;
 
     });
     //, 'FreeHandLineString', 'FreeHandPolygon'
-    var items = [ 'LineString', 'Polygon', 'Circle', 'Ellipse', 'Rectangle','ArcCurve','QuadBezierCurve','CubicBezierCurve'].map(function (value) {
+    var items = ['LineString', 'Polygon', 'Circle', 'Ellipse', 'Rectangle', 'ArcCurve', 'QuadBezierCurve',
+        'CubicBezierCurve'
+    ].map(function (value) {
         return {
             item: value,
             click: function () {
@@ -97,9 +92,9 @@
 
         //reset colors
         layer.forEach(function (g) {
-    
 
-       
+
+
             g.endEdit();
         });
         //identify
@@ -112,21 +107,22 @@
                     return;
                 }
                 geos.forEach(function (g) {
-                   
-                  
-                    
-                    if(g.properties.object_type=='Point'){
-                        //rd.readMarkerProperties(g)
-                        rd.readObjectProperties(g)
-                    }else{
+
+
+
+                    if (g.properties.objectType == 'Point') {
+                        rd.readMarkerProperties(g)
+                        //rd.readObjectProperties(g)
+                    } else {
                         rd.readObjectProperties(g)
                         g.startEdit();
                     }
 
-                  
 
-                   
-                  
+                    document.getElementById('geojsonContent').innerHTML = JSON.stringify(g
+                        .toGeoJSON());
+
+
 
 
                 });
@@ -212,175 +208,221 @@
         document.getElementById('map1-info').innerHTML = '<div>' + mapStatus.join('<br>') + '</div>';
 
     }
-   
-
-
-    
-
- 
-     
 
 
 
 
-var rd = {
 
-    calculateAltitudeInMeters: function (floors) {
+
+
+
+
+
+
+    var rd = {
+        drawGeoJson: function () {
+
+            const obj = $('#geojsonContent').val();
+            const objJSON = JSON.parse(obj);
+            geoItems['geoJsonFeature_' + mapObjectCnt] = maptalks.GeoJSON.toGeometry(obj).addTo(map.getLayer(
+                'Map Objects'));
+            mapObjectCnt++;
+        },
+        drawGeoJsonCollection: function () {
+
+            const obj = $('#geojsonCollectionContent').val();
+            const objJSON = JSON.parse(obj);
+            objJSON.features.forEach(rd.drawGeoJsonCollectionFeatures)
+
+        },
+        drawGeoJsonCollectionFeatures: function (item, index, arr) {
+
+            geoItems['geoJsonCollection_' + mapObjectCnt] = maptalks.GeoJSON.toGeometry(item).addTo(map
+                .getLayer('Map Objects'));
+            mapObjectCnt++;
+        },
+        extractGeoJsonCollection: function () {
+
+            var featureCollection = {
+                type: 'FeatureCollection',
+                features: []
+            };
+
+            var jProcess = new Promise((resolve, reject) => {
+                let count = 0;
+                Object.keys(geoItems).forEach(key => {
+                    const x = JSON.parse(JSON.stringify(geoItems[key]));
+                    featureCollection.features.push(x.feature);
+                    count++;
+                    if (count === Object.keys(geoItems).length) resolve();
+                });
+            });
+
+            jProcess.then(() => {
+                console.log(featureCollection);
+                $('#geojsonCollectionContent').val(JSON.stringify(featureCollection));
+            });
+
+        },
+        calculateAltitudeInMeters: function (floors) {
             const FEET_PER_FLOOR = 10;
             const METERS_PER_FOOT = 0.3048;
             const altitudeInFeet = floors * FEET_PER_FLOOR;
             const altitudeInMeters = altitudeInFeet * METERS_PER_FOOT;
             return altitudeInMeters;
-    },
-getFormValues: function (formId) {
+        },
+        getFormValues: function (formId) {
 
-    const form = document.getElementById(formId);
-    const inputs = form.querySelectorAll('input, select, textarea');
-    const values = {};
+            const form = document.getElementById(formId);
+            const inputs = form.querySelectorAll('input, select, textarea');
+            const values = {};
 
-    inputs.forEach(input => {
+            inputs.forEach(input => {
 
-    if (input.type === 'checkbox') {
-    values[input.name] = input.checked;
-    } else {
-    values[input.name] = input.value;
-    }
-    console.log(values[input.name] )
-    });
-  
-  
-    switch(formId){
-        case 'gen-marker':
-        rd.genMarkerProperties(values)
-        break;
-        case 'gen-objects':
-        rd.genObjectProperties(values)
-        break;
-    }
-    
-    },  readObjectProperties(values){
+                if (input.type === 'checkbox') {
+                    values[input.name] = input.checked;
+                } else {
+                    values[input.name] = input.value;
+                }
+                console.log(values[input.name])
+            });
 
- 
-        $('#objectId').val(values.properties.suqid)
-       
- 
-     }, readMarkerProperties(values){
 
-          
+            switch (formId) {
+                case 'gen-marker':
+                    rd.genMarkerProperties(values)
+                    break;
+                case 'gen-objects':
+                    rd.genObjectProperties(values)
+                    break;
+            }
+
+        },
+        readObjectProperties(values) {
+
+
+            $('#objectId').val(values.properties.suqid)
+
+
+        },
+        readMarkerProperties(values) {
+
+
             $('#marker-id').val(values.properties.suqid)
             $('#marker-color').val(values.properties.marker_color)
             $('#marker-type').val(values.properties.marker_type)
-       
- 
-     },
-     genObjectProperties(values){
-       console.log( geoItems[values['objectId']])
-        var floor= rd.calculateAltitudeInMeters(values['objectFloor'] )
-    
-        geoItems[values['objectId']].properties.altitude=floor;
 
-        if(geoItems[values['objectId']].type!='Point'){
-            geoItems[values['objectId']].updateSymbol({
-                userEdit:true,
-                'polygonFill': values['objectColor'],
-                'lineColor': values['objectColor'],
-                'polygonOpacity': 0.6
-            });
-       
-       
- 
-       geoItems[values['objectId']].setInfoWindow({
-        'title'     : values['objectTitle'],
-        'content'   : values['objectContent']
 
-        // 'autoPan': true,
-        // 'width': 300,
-        // 'minHeight': 120,
-        // 'custom': false,
-        //'autoOpenOn' : 'click',  //set to null if not to open when clicking on marker
-        //'autoCloseOn' : 'click'
-      });
-    }
+        },
+        genObjectProperties(values) {
+            console.log(geoItems[values['objectId']])
+            var floor = rd.calculateAltitudeInMeters(values['objectFloor'])
 
-     },
-    genMarkerProperties(values){
-        var floor= rd.calculateAltitudeInMeters(values['marker-floor'] )
+            geoItems[values['objectId']].properties.altitude = floor;
 
-        var markerProperties={
+            if (geoItems[values['objectId']].type != 'Point') {
+                geoItems[values['objectId']].updateSymbol({
+                    userEdit: true,
+                    'polygonFill': values['objectColor'],
+                    'lineColor': values['objectColor'],
+                    'polygonOpacity': 0.6
+                });
+
+
+
+                geoItems[values['objectId']].setInfoWindow({
+                    'title': values['objectTitle'],
+                    'content': values['objectContent']
+
+                    // 'autoPan': true,
+                    // 'width': 300,
+                    // 'minHeight': 120,
+                    // 'custom': false,
+                    //'autoOpenOn' : 'click',  //set to null if not to open when clicking on marker
+                    //'autoCloseOn' : 'click'
+                });
+            }
+
+        },
+        genMarkerProperties(values) {
+            var floor = rd.calculateAltitudeInMeters(values['marker-floor'])
+
+            var markerProperties = {
+
+
+
+
                 'name': 'Marker- ' + mapObjectCnt,
-                'suqid': 'marker_'+mapObjectCnt,
-                'object_type': 'Point',
-                'marker_type': values['marker-type'],
+                'suqid': 'marker_' + mapObjectCnt,
+                'objectType': 'Point',
+                'jsonType': values['marker-type'],
                 'marker_role': values['marker-role'],
                 'marker_title': values['marker-title'],
                 'marker_content': values['marker-content'],
                 'marker_color': values['marker-color'],
                 'marker_floor': values['marker-floor'],
-                'altitude':floor
+                'altitude': floor
+            }
+            rd.genMarker(markerProperties);
+        },
+
+
+        genMarker(p) {
+            console.log(p)
+            var c = map.getCenter();
+
+            if (typeof geoItems['marker_' + mapObjectCnt] == 'undefined') {
+
+
+                geoItems['marker_' + mapObjectCnt] = new maptalks.Marker(
+                    c, {
+                        'draggable': true,
+                        properties: p,
+                        symbol: [{
+                            'textVerticalAlignment': 'top', // top, middle, bottom(default)
+                            'textDy': 24,
+                            'textName': p.marker_role,
+                            'textSize': '14',
+                            'textFill': '#7C7B7B',
+                            'markerType': p.jsonType,
+                            'markerFill': p.marker_color,
+                            'markerFillOpacity': 0.4,
+                            'markerLineColor': p.marker_color,
+                            'markerLineWidth': 1,
+                            'markerLineOpacity': 1,
+                            'markerWidth': 40,
+                            'markerHeight': 40,
+                            'markerDx': 0,
+                            'markerDy': 0,
+                            'markerOpacity': 0.8
+                        }],
+
+                    });
+
+                geoItems['marker_' + mapObjectCnt].setInfoWindow({
+                    'title': p.marker_title,
+                    'content': p.marker_content
+
+                    // 'autoPan': true,
+                    // 'width': 300,
+                    // 'minHeight': 120,
+                    // 'custom': false,
+                    //'autoOpenOn' : 'click',  //set to null if not to open when clicking on marker
+                    //'autoCloseOn' : 'click'
+                });
+
+                map.getLayer('Map Objects').addGeometry(geoItems['marker_' + mapObjectCnt]);
+                mapObjectCnt++;
+            } else {
+
+
+            }
+
+
+
+
+
+
+        }
     }
-    rd.genMarker(markerProperties);
-    },
-
-
-  genMarker(p){
-    console.log(p)
-    var c = map.getCenter();
-
-    if(typeof geoItems['marker_'+mapObjectCnt]=='undefined'){
-       
-     
-        geoItems['marker_'+mapObjectCnt]  = new maptalks.Marker(
-    c,{
-        'draggable' : true,
-        properties: 
-            p
-                ,
-        symbol: [{
-                    'textVerticalAlignment': 'top', // top, middle, bottom(default)
-                    'textDy': 24,
-                    'textName': p.marker_role,
-                    'textSize': '14',
-                    'textFill': '#7C7B7B',
-                    'markerType': p.marker_type,
-                     'markerFill': p.marker_color,
-                    'markerFillOpacity': 0.4,
-                    'markerLineColor': p.marker_color,
-                    'markerLineWidth': 1,
-                    'markerLineOpacity': 1,
-                    'markerWidth':40,
-                    'markerHeight': 40,
-                    'markerDx': 0,
-                    'markerDy': 0,
-                    'markerOpacity': 0.8
-                }],
-
-    });
-
-    geoItems['marker_'+mapObjectCnt].setInfoWindow({
-        'title'     : p.marker_title,
-        'content'   : p.marker_content
-
-        // 'autoPan': true,
-        // 'width': 300,
-        // 'minHeight': 120,
-        // 'custom': false,
-        //'autoOpenOn' : 'click',  //set to null if not to open when clicking on marker
-        //'autoCloseOn' : 'click'
-      });
-  
-  map.getLayer('Markers').addGeometry( geoItems['marker_'+mapObjectCnt] );
-  mapObjectCnt++;
-    }else{
- 
-     
-    }
-
-   
-  
-
-
-    
-  }  
-}
-
 </script>

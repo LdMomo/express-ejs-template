@@ -1,0 +1,123 @@
+<style>
+    .inputColor{
+         background-color: #fff;
+         padding: 2px;
+         width: 50px;
+         height: 34px;
+         cursor: pointer;
+         border: 2px solid #cccccc;
+         border-radius: 3px;
+         margin-top: 4px;
+         margin: 4px;
+     }
+ 
+    
+  
+ </style>
+ 
+ 
+  
+ <div class="card">
+     <div class="card-header">
+         Geojson Feature
+     </div>
+     <div class="card-body">
+ 
+    
+           
+         <form id="gen-objects">
+             
+ 
+          
+             <div class="form-group row">
+                  <div class="col-sm-12">
+                     <textarea type="text"  rows="5" class="form-control form-control-sm" id="geojsonContent" name="geojsonContent"  placeholder="Content"></textarea>
+                 </div>
+             </div>
+ 
+      
+             <div class="form-group row">
+                 <div class="col-sm-12">
+                     <button type="button"  onclick="rd.drawGeoJson();" class="btn btn-info">Draw</button>
+                 </div>
+             </div>
+         </form>
+ 
+     </div>
+ </div>
+ <div class="card">
+    <div class="card-header">
+        Geojson Feature Colletion
+    </div>
+    <div class="card-body">
+
+   
+          
+        <form id="gen-objects">
+            
+
+         
+            <div class="form-group row">
+                 <div class="col-sm-12">
+                    <textarea type="text"  rows="5" class="form-control form-control-sm" id="geojsonCollectionContent" name="geojsonCollectionContent"  placeholder="Content"></textarea>
+                </div>
+            </div>
+
+     
+            <div class="form-group row">
+                <div class="col-sm-12">
+                    <button type="button"  onclick="rd.extractGeoJsonCollection();" class="btn btn-warning">Extract</button>
+
+                    <button type="button"  onclick="rd.drawGeoJsonCollection();" class="btn btn-info">Draw</button>
+                </div>
+            </div>
+            <h2>Output:</h2>
+                <button type="button" class="btn btn-warning load-json">Load JSON</button>
+                <button type="button" class="btn btn-warning collapsed">Collapse to level 1</button>
+                <button type="button" class="btn btn-warning maxlvl">Show JSON to level 1</button>
+           
+           
+            <div id="json"></div>
+        </form>
+
+    </div>
+</div>
+<script>
+    var jsonObj = {};
+		var jsonViewer = new JSONViewer();
+		document.querySelector("#json").appendChild(jsonViewer.getContainer());
+        var textarea = $('#geojsonCollectionContent').val();
+
+        // textarea value to JSON object
+		var setJSON = function() {
+			try {
+				var value =  $('#geojsonCollectionContent').val();
+				jsonObj = JSON.parse(value);
+			}
+			catch (err) {
+				alert(err);
+			}
+		};
+
+		// load default value
+		//setJSON();
+
+		var loadJsonBtn = document.querySelector("button.load-json");
+		var collapseBtn = document.querySelector("button.collapsed");
+		var maxlvlBtn = document.querySelector("button.maxlvl");
+
+		loadJsonBtn.addEventListener("click", function() {
+			setJSON();
+			jsonViewer.showJSON(jsonObj);
+		});
+
+		collapseBtn.addEventListener("click", function() {
+			jsonViewer.showJSON(jsonObj, null, 1);
+		});
+
+		maxlvlBtn.addEventListener("click", function() {
+			jsonViewer.showJSON(jsonObj, 1);
+		});
+
+</script>
+

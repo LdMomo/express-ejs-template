@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
@@ -10,273 +11,423 @@
 
     <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/dashboard/">
 
-    
+
     <link media="screen" rel="stylesheet" href="assets/maptalks/maptalks.css" type="text/css">
+    <script type="text/javascript" src="assets/maptalks/maptalks.min.js"></script>
+
     <link href="assets/font-awesome/css/font-awesome.min.css" rel="stylesheet">
     <link href="styles.css" rel="stylesheet">
 
 
 
     <!-- Bootstrap core CSS -->
-<link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-<script type="text/javascript" src="assets/jquery/jquery.min.js"></script>
-
-<link href="assets/select2/css/select2.min.css" rel="stylesheet" />
-<script src="assets/select2/js/select2.min.js"></script>
-<script>
-    var map;
-    var map1_center = [];
-var map1_extend, map1_zoom;
-var selectedMapObject;
-
-var mapObjectCnt = 0;
-var iconSet = [];
-
-var geoItems = [];
-var geoItemsRange = [];
-    var geoItemsOptions = [];
-</script>
+    <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <script type="text/javascript" src="assets/jquery/jquery.min.js"></script>
 
 
-<script type="text/javascript" src="assets/maptalks/maptalks.min.js"></script>
- 
+
+
+
+    <link href="assets/select2/css/select2.min.css" rel="stylesheet" />
+    <script src="assets/select2/js/select2.min.js"></script>
+
+
+    <link href="assets/jquery-ui-1.13.2.custom/jquery-ui.css" rel="stylesheet">
+    <script src="assets/jquery-ui-1.13.2.custom/jquery-ui.js"></script>
+
+    <link href="assets/jsonViewer/json-viewer.css" rel="stylesheet">
+    <script type="text/javascript" src="assets/jsonViewer/json-viewer.js"></script>
+
+    <script>
+        var map;
+        var map1_center = [];
+        var map1_extend, map1_zoom;
+        var selectedMapObject;
+
+        var mapObjectCnt = 0;
+        var iconSet = [];
+
+        var geoItems = [];
+        var geoItemsRange = [];
+        var geoItemsOptions = [];
+    </script>
+
+
+
+
 
 
 
     <style>
-           html,
-    body {
-        margin: 0px;
-        height: 100%;
-        width: 100%
-    }
-      .bd-placeholder-img {
-        font-size: 1.125rem;
-        text-anchor: middle;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        user-select: none;
-      }
-
-      @media (min-width: 768px) {
-        .bd-placeholder-img-lg {
-          font-size: 3.5rem;
-        }
-      }
-      body {
-  font-size: .875rem;
-  background-color: #e4e6e9;
-}
-
-.feather {
-  width: 16px;
-  height: 16px;
-  vertical-align: text-bottom;
-}
-
-/*
+        /*
  * Sidebar
  */
 
-.sidebar {
-  position: fixed;
-  top: 0;
-  /* rtl:raw:
+        .sidebar {
+            position: fixed;
+            top: 0;
+            /* rtl:raw:
   right: 0;
   */
-  bottom: 0;
-  /* rtl:remove */
-  left: 0;
-  z-index: 100; /* Behind the navbar */
-  padding: 48px 0 0; /* Height of navbar */
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-}
+            bottom: 0;
+            /* rtl:remove */
+            left: 0;
+            z-index: 100;
+            /* Behind the navbar */
+            padding: 48px 0 0;
+            /* Height of navbar */
+            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+        }
 
-@media (max-width: 767.98px) {
-  .sidebar {
-    top: 5rem;
-  }
-}
+        @media (max-width: 767.98px) {
+            .sidebar {
+                top: 5rem;
+            }
+        }
 
-.sidebar-sticky {
-  position: relative;
-  top: 0;
-  height: calc(100vh - 48px);
-  padding-top: .5rem;
-  overflow-x: hidden;
-  overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
-}
+        .sidebar-sticky {
+            position: relative;
+            top: 0;
+            height: calc(100vh - 48px);
+            padding-top: .5rem;
+            overflow-x: hidden;
+            overflow-y: auto;
+            /* Scrollable contents if viewport is shorter than content. */
+        }
 
-.sidebar .nav-link {
-  font-weight: 500;
-  color: #333;
-}
+        .sidebar .nav-link {
+            font-weight: 500;
+            color: #333;
+        }
 
-.sidebar .nav-link .feather {
-  margin-right: 4px;
-  color: #727272;
-}
+        .sidebar .nav-link .feather {
+            margin-right: 4px;
+            color: #727272;
+        }
 
-.sidebar .nav-link.active {
-  color: #2470dc;
-}
+        .sidebar .nav-link.active {
+            color: #2470dc;
+        }
 
-.sidebar .nav-link:hover .feather,
-.sidebar .nav-link.active .feather {
-  color: inherit;
-}
+        .sidebar .nav-link:hover .feather,
+        .sidebar .nav-link.active .feather {
+            color: inherit;
+        }
 
-.sidebar-heading {
-  font-size: .75rem;
-  text-transform: uppercase;
-}
+        .sidebar-heading {
+            font-size: .75rem;
+            text-transform: uppercase;
+        }
 
-/*
- * Navbar
- */
 
-.navbar-brand {
-  padding-top: .75rem;
-  padding-bottom: .75rem;
-  font-size: 1rem;
-  background-color: rgba(0, 0, 0, .25);
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
-}
 
-.navbar .navbar-toggler {
-  top: .25rem;
-  right: 1rem;
-}
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
 
-.navbar .form-control {
-  padding: .75rem 1rem;
-  border-width: 0;
-  border-radius: 0;
-}
+        #map {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
 
-.form-control-dark {
-  color: #fff;
-  background-color: rgba(255, 255, 255, .1);
-  border-color: rgba(255, 255, 255, .1);
-}
+        }
 
-.form-control-dark:focus {
-  border-color: transparent;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, .25);
-}
+        .container-fluid {
+            height: 100%;
+            width: 100%;
+        }
 
+        .tab-pane {
+            padding: 20px;
+        }
+
+        .draggable {
+            cursor: move;
+            /* fallback if grab cursor is unsupported */
+            cursor: grab;
+            cursor: -moz-grab;
+            cursor: -webkit-grab;
+            opacity: 0.8;
+            /*
+            position: absolute;
+            border: 1px solid black;
+
+            overflow: hidden;*/
+        }
+
+
+        .draggable:active {
+            cursor: grabbing;
+            cursor: -moz-grabbing;
+            cursor: -webkit-grabbing;
+
+        }
+
+        .closeCard {
+            color: aqua;
+              
+        }
+        .closeCard:hover  {
+            color: rgb(255, 251, 25);
+        }
+
+        .closeCard:active {
+            color: rgb(247, 0, 0);
+              
+
+        }
+
+        #Layer1 {
+            position: absolute;
+
+
+            width: 0px;
+            height: 0px;
+            z-index: 1;
+
+        }
+
+        .ui-resizable-helper {
+            border: 3px dotted rgb(255, 217, 0);
+        }
     </style>
+</head>
 
-    
-    <!-- Custom styles for this template -->
-    
-  </head>
-  <body>
+<body data-bs-theme="dark">
 
-<header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-  <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">Company name</a>
-  <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
-  <div class="navbar-nav">
-    <div class="nav-item text-nowrap">
-      <a class="nav-link px-3" href="#">Sign out</a>
+
+
+    <div class="container-fluid ">
+        <div id="map"></div>
+
+        <div class="row">
+            <div class="col-md-3 themed-grid-col">
+
+                
+                <div class="card mb-grid draggable">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="card-header-title text-info">Basic Form Example</div>
+
+                        <nav class="card-header-actions">
+                            <a class="card-header-action" data-toggle="collapse" href="#card1" aria-expanded="true"
+                                aria-controls="card1">
+                                <span class="fa fa-circle closeCard"></span>
+                            </a>
+
+
+
+
+                        </nav>
+                    </div>
+                    <div class="card-body" style="overflow: auto !important;">
+
+                        <p class="card-text">Some quick example text to build on the card title and make up the bulk
+                            ofome quick example text to build on the card title ome quick example text to build on the
+                            card title
+                            the card's content.</p>
+                        <a href="#" class="btn btn-primary">Go somewhere</a>
+                    </div>
+                </div>
+
+
+            </div>
+
+           
+
+            <div class="col-md-3 themed-grid-col">
+
+
+                <div class="card  mb-grid  draggable">
+                    <div class="card-header card-header-primary">
+                        <h4 class="card-title">Edit Profile</h4>
+                        <p class="card-category">Complete your profile</p>
+                    </div>
+                    <div class="card-body">
+                        <form>
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="form-group bmd-form-group">
+                                        <label class="bmd-label-floating">Company (disabled)</label>
+                                        <input type="text" class="form-control" disabled="">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group bmd-form-group">
+                                        <label class="bmd-label-floating">Username</label>
+                                        <input type="text" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group bmd-form-group">
+                                        <label class="bmd-label-floating">Email address</label>
+                                        <input type="email" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group bmd-form-group">
+                                        <label class="bmd-label-floating">Fist Name</label>
+                                        <input type="text" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group bmd-form-group">
+                                        <label class="bmd-label-floating">Last Name</label>
+                                        <input type="text" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group bmd-form-group">
+                                        <label class="bmd-label-floating">Adress</label>
+                                        <input type="text" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group bmd-form-group">
+                                        <label class="bmd-label-floating">City</label>
+                                        <input type="text" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group bmd-form-group">
+                                        <label class="bmd-label-floating">Country</label>
+                                        <input type="text" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group bmd-form-group">
+                                        <label class="bmd-label-floating">Postal Code</label>
+                                        <input type="text" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>About Me</label>
+                                        <div class="form-group bmd-form-group">
+                                            <label class="bmd-label-floating"> Lamborghini Mercy, Your chick she so
+                                                thirsty, I'm in that two seat Lambo.</label>
+                                            <textarea class="form-control" rows="5"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary pull-right">Update Profile</button>
+                            <div class="clearfix"></div>
+                        </form>
+                    </div>
+                </div>
+
+
+
+
+
+                <div class="card mb-grid draggable">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="card-header-title">Basic Form Example</div>
+
+                        <nav class="card-header-actions">
+                            <a class="card-header-action" data-toggle="collapse" href="#card1" aria-expanded="true"
+                                aria-controls="card1">
+                                <span class="fa fa-map"></span>
+                            </a>
+
+
+
+
+                        </nav>
+                    </div>
+                    <div class="card-body collapse show" id="card1" style="">
+                        <form>
+                            <div class="form-group">
+                                <label class="form-label" for="exampleInputEmail1">Email address</label>
+                                <input type="email" class="form-control" id="exampleInputEmail1"
+                                    aria-describedby="emailHelp" placeholder="Enter email">
+                                <small id="emailHelp" class="form-text text-muted">We'll never share your email with
+                                    anyone else.</small>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="exampleInputPassword1">Password</label>
+                                <input type="password" class="form-control" id="exampleInputPassword1"
+                                    placeholder="Password">
+                            </div>
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="customCheck1">
+                                    <label class="custom-control-label" for="customCheck1">Remember me</label>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+        </div>
     </div>
-  </div>
-</header>
 
-<div class="container-fluid">
-  <div class="row">
-    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-      <div class="position-sticky pt-3">
-        <ul class="nav flex-column">
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">
-              <span data-feather="home"></span>
-              Dashboard
-            </a>
-          </li>
-     
-        </ul>
-
-        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-          <span>Saved reports</span>
-          <a class="link-secondary" href="#" aria-label="Add a new report">
-            <span data-feather="plus-circle"></span>
-          </a>
-        </h6>
-        <ul class="nav flex-column mb-2">
-          <li class="nav-item">
-            <a class="nav-link" href="#">
-              <span data-feather="file-text"></span>
-              Current month
-            </a>
-          </li>
-
-        </ul>
-      </div>
-    </nav>
-
-    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 mb-3 border-bottom">
-            <h1 class="h2">Dashboard</h1>
-        </div>
-
-      <div class="row mb-3">
-        <div class="col-md-3 themed-grid-col">
-            
-
-
-            <div class="row " >
-                <%- include("pages/object-list") -%>
-              </div>
-
-
-
-        </div>
-        <div class="col-md-6 themed-grid-col">
-            
-            <%- include("pages/map") -%>
-
-        </div>
-        <div class="col-md-3 themed-grid-col">
-            <div class="row " style="overflow: auto !important;max-height: 70vh !important;">
-            <%- include("pages/property-list") -%>
-        </div>
-
-        </div>
-      </div>
-    </main>
-  </div>
-</div>
 
 
     <script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-   
     <script>
- 
-// Get all elements with the class "my-input"
-const inputs = document.querySelectorAll('.inputColor');
+        $(function () {
 
-// Loop through each input element and add an event listener
-inputs.forEach(input => {
-  input.addEventListener('input', () => {
-    // This function will be called whenever the input value changes
 
-  
+            $(".draggable").resizable({
+                helper: "ui-resizable-helper"
 
-    // Add your desired actions here
-  });
-});
- 
-    
-    
-   
+
+            });
+
+            $(".draggable").resizable();
+            //  $(".draggable").draggable();
+
+
+            $('.draggable').draggable({
+                start: function () {
+                    $('.draggable').css('zIndex', 9990);
+                    $(this).css('zIndex', 9999);
+                }
+            });
+
+            $('.draggable').click(function () {
+                $('.draggable').css('zIndex', 9990);
+                $(this).css('zIndex', 9999);
+            });
+
+
+        });
     </script>
+    <script>
+        var map = new maptalks.Map('map', {
+            center: [-0.113049, 51.498568],
+            zoom: 14,
+            baseLayer: new maptalks.TileLayer('base', {
+                urlTemplate: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+                subdomains: ["a", "b", "c", "d"],
+                attribution: '&copy; <a href="http://osm.org">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/">CARTO</a>'
+            }),
+            layers: [
+                new maptalks.VectorLayer('v')
+            ]
+        });
+    </script>
+</body>
 
-
-   </body>
 </html>
