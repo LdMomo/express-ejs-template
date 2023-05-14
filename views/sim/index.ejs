@@ -170,20 +170,22 @@
 
         .closeCard {
             color: aqua;
-              
+
         }
-        .closeCard:hover  {
+
+        .closeCard:hover {
             color: rgb(255, 251, 25);
         }
 
         .closeCard:active {
             color: rgb(247, 0, 0);
-              
+
 
         }
 
         #Layer1 {
             position: absolute;
+            
 
 
             width: 0px;
@@ -201,193 +203,70 @@
 <body data-bs-theme="dark">
 
 
-
     <div class="container-fluid ">
         <div id="map"></div>
 
         <div class="row">
-            <div class="col-md-3 themed-grid-col">
 
-                
-                <div class="card mb-grid draggable">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <div class="card-header-title text-info">Basic Form Example</div>
-
-                        <nav class="card-header-actions">
-                            <a class="card-header-action" data-toggle="collapse" href="#card1" aria-expanded="true"
-                                aria-controls="card1">
-                                <span class="fa fa-circle closeCard"></span>
-                            </a>
-
-
-
-
-                        </nav>
-                    </div>
-                    <div class="card-body" style="overflow: auto !important;">
-
-                        <p class="card-text">Some quick example text to build on the card title and make up the bulk
-                            ofome quick example text to build on the card title ome quick example text to build on the
-                            card title
-                            the card's content.</p>
-                        <a href="#" class="btn btn-primary">Go somewhere</a>
-                    </div>
-                </div>
-
-
-            </div>
-
-           
-
-            <div class="col-md-3 themed-grid-col">
-
-
-                <div class="card  mb-grid  draggable">
-                    <div class="card-header card-header-primary">
-                        <h4 class="card-title">Edit Profile</h4>
-                        <p class="card-category">Complete your profile</p>
-                    </div>
-                    <div class="card-body">
-                        <form>
-                            <div class="row">
-                                <div class="col-md-5">
-                                    <div class="form-group bmd-form-group">
-                                        <label class="bmd-label-floating">Company (disabled)</label>
-                                        <input type="text" class="form-control" disabled="">
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group bmd-form-group">
-                                        <label class="bmd-label-floating">Username</label>
-                                        <input type="text" class="form-control">
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group bmd-form-group">
-                                        <label class="bmd-label-floating">Email address</label>
-                                        <input type="email" class="form-control">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group bmd-form-group">
-                                        <label class="bmd-label-floating">Fist Name</label>
-                                        <input type="text" class="form-control">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group bmd-form-group">
-                                        <label class="bmd-label-floating">Last Name</label>
-                                        <input type="text" class="form-control">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group bmd-form-group">
-                                        <label class="bmd-label-floating">Adress</label>
-                                        <input type="text" class="form-control">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group bmd-form-group">
-                                        <label class="bmd-label-floating">City</label>
-                                        <input type="text" class="form-control">
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group bmd-form-group">
-                                        <label class="bmd-label-floating">Country</label>
-                                        <input type="text" class="form-control">
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group bmd-form-group">
-                                        <label class="bmd-label-floating">Postal Code</label>
-                                        <input type="text" class="form-control">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label>About Me</label>
-                                        <div class="form-group bmd-form-group">
-                                            <label class="bmd-label-floating"> Lamborghini Mercy, Your chick she so
-                                                thirsty, I'm in that two seat Lambo.</label>
-                                            <textarea class="form-control" rows="5"></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary pull-right">Update Profile</button>
-                            <div class="clearfix"></div>
-                        </form>
-                    </div>
-                </div>
-
-
-
-
-
-                <div class="card mb-grid draggable">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <div class="card-header-title">Basic Form Example</div>
-
-                        <nav class="card-header-actions">
-                            <a class="card-header-action" data-toggle="collapse" href="#card1" aria-expanded="true"
-                                aria-controls="card1">
-                                <span class="fa fa-map"></span>
-                            </a>
-
-
-
-
-                        </nav>
-                    </div>
-                    <div class="card-body collapse show" id="card1" style="">
-                        <form>
-                            <div class="form-group">
-                                <label class="form-label" for="exampleInputEmail1">Email address</label>
-                                <input type="email" class="form-control" id="exampleInputEmail1"
-                                    aria-describedby="emailHelp" placeholder="Enter email">
-                                <small id="emailHelp" class="form-text text-muted">We'll never share your email with
-                                    anyone else.</small>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="exampleInputPassword1">Password</label>
-                                <input type="password" class="form-control" id="exampleInputPassword1"
-                                    placeholder="Password">
-                            </div>
-                            <div class="form-group">
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input" id="customCheck1">
-                                    <label class="custom-control-label" for="customCheck1">Remember me</label>
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Submit</button>
-                        </form>
-                    </div>
-                </div>
+            <!-- Left panel -->
+            <div class="col-md-3 themed-grid-col" >
+                <%- include("../pages/dashboard") -%>
             </div>
 
 
+            <!-- Center panel -->
+            <div class="col-md-3 themed-grid-col"  >
 
 
+            </div>
+           <!-- Notifications -->
+            <div class="col-md-6 themed-grid-col"  >
+
+                <div class="position-fixed top-0 end-0 p-3  " style="z-index: 11">
+                  <div id="liveToast" class="toast  bg-warning" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                      <img src="assets/css/images/POLICE.png" width="24" class="rounded me-2" alt="...">
+                      <strong class="me-auto" >Bootstrap</strong>
+                      <small>11 mins ago</small>
+                      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body">
+                      Hello, world! This is a toast message.
+                    </div>
+                  </div>
+                </div>
+
+            </div>
 
 
         </div>
+        
     </div>
-
+   
 
 
     <script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script>
-        $(function () {
+         var toastLiveExample = document.getElementById('liveToast')
+         var toasts=[]
+         var toastCount=0
+        //Template functions
+        var tmp = {
+        toast: function () {
 
+
+               
+                var toast = new bootstrap.Toast(toastLiveExample)
+                toasts.push(toast)
+                toasts[toastCount].show()
+               
+                toastCount++;
+
+        }
+    }
+      
+        $(function () {
+tmp.toast()
 
             $(".draggable").resizable({
                 helper: "ui-resizable-helper"
