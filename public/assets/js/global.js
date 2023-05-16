@@ -430,7 +430,7 @@ var server_Police = {
         var myHeaders = new Headers();
         myHeaders.append("Authorization", "Bearer UpaSRzw0Iw");
         myHeaders.append("Content-Type", "application/json");
-        myHeaders.append("Cookie", "PHPSESSID=qieojbd0m4hn2hhinakunh6jk4");
+        //myHeaders.append("Cookie", "PHPSESSID=qieojbd0m4hn2hhinakunh6jk4");
 
         var raw = JSON.stringify({
             "param": {

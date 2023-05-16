@@ -24,8 +24,8 @@
                 
                    <script>
                      $(document).ready(function() {
-                   //   var imgs=server_Police.getEmpImage(<%= data[i].serviceno %>, <%= data[i].unitno %>);
-                 //   $('#img_<%= data[i].serviceno %>').attr("src",imgs);
+                    var imgs=server_Police.getEmpImage(<%= data[i].serviceno %>, <%= data[i].unitno %>);
+                 $('#img_<%= data[i].serviceno %>').attr("src",imgs);
                   });
                     </script>
 
