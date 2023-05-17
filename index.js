@@ -140,6 +140,10 @@ app.get("/sim", function(req, res){
    
     res.render("sim/index.ejs",  {iconSet:iconSet,myip: req.socket.remoteAddress})
 });
+app.get("/simold", function(req, res){
+   
+    res.render("sim/index-old.ejs",  {iconSet:iconSet,myip: req.socket.remoteAddress})
+});
 
 
 
