@@ -126,6 +126,7 @@
             height: 100%;
             margin: 0;
             padding: 0;
+            font-size: small !important;
         }
 
         #map {
@@ -169,7 +170,8 @@
         }
 
         .closeCard {
-            color: aqua;
+            color: rgb(255, 0, 0);
+            cursor: pointer;
 
         }
 
@@ -178,11 +180,33 @@
         }
 
         .closeCard:active {
-            color: rgb(247, 0, 0);
+            color: rgb(41, 247, 0);
 
 
         }
+        .collapsCard {
+            color: rgb(31, 133, 201);
+            cursor: pointer;
 
+        }
+
+        .collapsCard:hover {
+            color: rgb(255, 251, 25);
+        }
+
+        .collapsCard:active {
+            color: rgb(41, 247, 0);
+
+        }
+        
+        .lablIconCard {
+            color: rgb(213, 227, 236);
+            cursor: pointer;
+
+        }
+        .hidden {
+  display: none;
+}
         #Layer1 {
             position: absolute;
             
@@ -210,6 +234,7 @@
 
             <!-- Left panel -->
             <div class="col-md-3 themed-grid-col" >
+                
                 <%- include("../pages/dashboard") -%>
             </div>
 
@@ -232,7 +257,7 @@
                       <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                     </div>
                     <div class="toast-body">
-                      Hello, world! This is a toast message.
+                        <button id="loadDashboardButton" onclick="loadDashboard()">Load Dashboard</button>
                     </div>
                   </div>
                 </div>
@@ -307,6 +332,35 @@ tmp.toast()
                 new maptalks.VectorLayer('v')
             ]
         });
+
+
+
+
+
+
+
+
+        function loadDashboard() {
+            console.log('s')
+  // Create an XMLHttpRequest object
+  var xhr = new XMLHttpRequest();
+
+  // Define the URL of the dashboard.ejs file
+  var url = 'views/pages/dashboard.ejs';
+
+  // Send a GET request to fetch the content of the file
+  xhr.open('GET', url, true);
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+      // Inject the content of the file into the DOM
+      document.body.innerHTML += xhr.responseText;
+    }
+  };
+  xhr.send();
+}
+
+
+
     </script>
 </body>
 

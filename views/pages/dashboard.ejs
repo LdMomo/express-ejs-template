@@ -1,12 +1,20 @@
+
+
 <div class="card mb-grid draggable">
     <div class="card-header d-flex justify-content-between align-items-center">
         <div class="card-header-title text-info">Basic Form Example</div>
 
         <nav class="card-header-actions">
-            <a class="card-header-action" data-toggle="collapse" href="#card1" aria-expanded="true"
+  
+            <span class="card-header-action" data-toggle="collapse" href="#card1" aria-expanded="true"
+                aria-controls="card1">
+                <span class="fa fa-circle collapsCard"></span>
+            </span>
+            <span class="card-header-action" data-toggle="collapse" href="#card1" aria-expanded="true"
                 aria-controls="card1">
                 <span class="fa fa-circle closeCard"></span>
-            </a>
+            </span> 
+            
         </nav>
     </div>
     <div class="card-body" style="overflow: auto !important;">
@@ -16,20 +24,66 @@
             card title
             the card's content.</p>
             <button type="button" class="btn btn-primary" onclick="tmp.toast()" >Show live toast</button>
-
-        <a href="#" class="btn btn-primary">Go somewhere</a>
+            
+        <button type="button" class="btn btn-primary">Go somewhere</button>
     </div>
 </div>
 
+<script>
+// Get all elements with the specified class name
+const closeBth = document.getElementsByClassName('closeCard');
 
-<div class="card col d-flex align-items-start draggable">
-    <div class="icon-square text-body-emphasis bg-body-secondary d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
-        <img src="assets/css/images/POLICE.png" width="24" class="rounded me-2" alt="...">    </div>
-    <div>
-      <h3 class="fs-2">Featured title</h3>
-      <p>Paragraph of text beneath the heading to explain the heading. We'll add onto it with another sentence and probably just keep going until we run out of words.</p>
-      <a href="#" class="btn btn-primary">
-        Primary button
-      </a>
-    </div>
-  </div>
+// Function to handle the click event
+function handleClickCloseBth(event) {
+  // Find the closest parent element with the desired class
+  const parentElement = event.target.closest('.card');
+
+  if (parentElement) {
+    // Parent element with the desired class found
+    console.log('Parent class found:', parentElement);
+    // Add your desired actions or functions here
+    parentElement.remove();
+  } else {
+    // Parent element with the desired class not found
+    console.log('Parent class not found.');
+  }
+}
+
+// Attach click event listener to each element
+Array.from(closeBth).forEach((element) => {
+  element.addEventListener('click', handleClickCloseBth);
+});
+
+
+// Get all elements with the specified class name
+const minBth = document.getElementsByClassName('collapsCard');
+
+// Function to handle the click event
+function handleClickMinBth(event) {
+  // Find the closest parent element with the desired class
+  const parentElement = event.target.closest('.card');
+
+  if (parentElement) {
+    // Parent element with the desired class found
+    console.log('Parent class found:', parentElement);
+    // Add your desired actions or functions here
+    const specificElement = parentElement.querySelector('.card-body');
+    if (specificElement) {
+      specificElement.classList.toggle('hidden');
+    }
+  } else {
+    // Parent element with the desired class not found
+    console.log('Parent class not found.');
+  }
+}
+
+// Attach click event listener to each element
+Array.from(minBth).forEach((element) => {
+  element.addEventListener('click', handleClickMinBth);
+});
+
+
+
+ 
+  
+</script>
